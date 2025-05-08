@@ -36,7 +36,7 @@ public class Queen {
                 return;
             }
 
-            ChessPosition pos = new ChessPosition(c, r);
+            ChessPosition pos = new ChessPosition(r, c);
             if (board.getPiece(pos) != null) {
                 if (board.getPiece(pos).getTeamColor() != this.color) {
                     moves.add(new ChessMove((ChessPosition) myPosition, pos, (ChessPiece.PieceType)null));

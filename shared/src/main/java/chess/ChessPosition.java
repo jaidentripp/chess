@@ -50,6 +50,14 @@ public class ChessPosition {
     }
 
     @Override
+    public String toString() {
+        return "ChessPosition{" +
+                "row=" + row +
+                ", col=" + col +
+                '}';
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(row, col);
     }

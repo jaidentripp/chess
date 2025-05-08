@@ -107,4 +107,12 @@ public class ChessPiece {
         }
         return new ArrayList<>();
     }
+
+    @Override
+    public String toString() {
+        return "ChessPiece{" +
+                "color=" + color +
+                ", pieceType=" + pieceType +
+                '}';
+    }
 }

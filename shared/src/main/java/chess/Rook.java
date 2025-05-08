@@ -29,7 +29,7 @@ public class Rook {
             c += c_direction;
             r += r_direction;
             if (c > 0 && c < 9 && r > 0 && r < 9) {
-                ChessPosition pos = new ChessPosition(c, r);
+                ChessPosition pos = new ChessPosition(r, c);
                 if (board.getPiece(pos) == null) {
                     moves.add(new ChessMove((ChessPosition) myPosition, pos, null));
                 } else if (board.getPiece(pos).getTeamColor() != this.color) {
