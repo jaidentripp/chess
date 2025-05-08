@@ -95,6 +95,11 @@ public class ChessPiece {
             Collection<ChessMove> knightMoves = knight.pieceMoves(board, myPosition);
             return knightMoves;
         }
+        if (pieceType == PieceType.BISHOP) {
+            Bishop bishop = new Bishop(color);
+            Collection<ChessMove> bishopMoves = bishop.pieceMoves(board, myPosition);
+            return bishopMoves;
+        }
         return new ArrayList<>();
     }
 }
