@@ -58,22 +58,24 @@ public class ChessBoard {
 
     }
 
-    private void setSquares() {
-        //int c = 0;
-        //int w = 0;
-        //int b = 7;
-        //this.squares[c][w] = new Rook(ChessGame.TeamColor.WHITE);
-        //this.squares[c][b] = new Rook(ChessGame.TeamColor.BLACK);
-        //++c;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessBoard that = (ChessBoard) o;
+        return Arrays.deepEquals(squares, that.squares);
+    }
 
-//        this.squares[c][w] = new King(ChessGame.TeamColor.WHITE);
-//        this.squares[c][b] = new King(ChessGame.TeamColor.BLACK);
-//        ++c;
-//
-//        this.squares[c][w] = new Rook(ChessGame.TeamColor.WHITE);
-//        this.squares[c][b] = new Rook(ChessGame.TeamColor.BLACK);
-//        ++w;
-//        --b;
+    @Override
+    public int hashCode() {
+        return Arrays.deepHashCode(squares);
+    }
+
+    private void setSquares() {
         //White rank
         squares[0][0] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
         squares[0][1] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT);
@@ -83,6 +85,11 @@ public class ChessBoard {
         squares[0][5] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP);
         squares[0][6] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT);
         squares[0][7] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
+
+        //white pawns
+        for (int col = 0; col < 8; col++) {
+            squares[1][col] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
+        }
 
         //Black rank
         squares[7][0] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
@@ -94,5 +101,9 @@ public class ChessBoard {
         squares[7][6] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
         squares[7][7] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
 
+        //black pawns
+        for (int col = 0; col < 8; col++) {
+            squares[6][col] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
+        }
     }
 }

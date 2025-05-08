@@ -100,6 +100,11 @@ public class ChessPiece {
             Collection<ChessMove> bishopMoves = bishop.pieceMoves(board, myPosition);
             return bishopMoves;
         }
+        if (pieceType == PieceType.PAWN) {
+            Pawn pawn = new Pawn(color);
+            Collection<ChessMove> pawnMoves = pawn.pieceMoves(board, myPosition);
+            return pawnMoves;
+        }
         return new ArrayList<>();
     }
 }
