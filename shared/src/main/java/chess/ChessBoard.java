@@ -46,7 +46,7 @@ public class ChessBoard {
     public void resetBoard() {
         //throw new RuntimeException("Not implemented");
         clearBoard();
-        //setsquares();
+        setSquares();
     }
 
     private void clearBoard() {
@@ -55,6 +55,25 @@ public class ChessBoard {
                 this.squares[i][j] = null;
             }
         }
+
+    }
+
+    private void setSquares() {
+        int c = 0;
+        int w = 0;
+        int b = 7;
+        this.squares[c][w] = new Rook(ChessGame.TeamColor.WHITE);
+        this.squares[c][b] = new Rook(ChessGame.TeamColor.BLACK);
+        ++c;
+
+        this.squares[c][w] = new King(ChessGame.TeamColor.WHITE);
+        this.squares[c][b] = new King(ChessGame.TeamColor.BLACK);
+        ++c;
+
+        this.squares[c][w] = new Rook(ChessGame.TeamColor.WHITE);
+        this.squares[c][b] = new Rook(ChessGame.TeamColor.BLACK);
+        ++w;
+        --b;
 
     }
 }
