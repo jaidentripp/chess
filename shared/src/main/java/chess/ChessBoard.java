@@ -59,21 +59,32 @@ public class ChessBoard {
     }
 
     private void setSquares() {
-        int c = 0;
-        int w = 0;
-        int b = 7;
-        this.squares[c][w] = new Rook(ChessGame.TeamColor.WHITE);
-        this.squares[c][b] = new Rook(ChessGame.TeamColor.BLACK);
-        ++c;
+        //int c = 0;
+        //int w = 0;
+        //int b = 7;
+        //this.squares[c][w] = new Rook(ChessGame.TeamColor.WHITE);
+        //this.squares[c][b] = new Rook(ChessGame.TeamColor.BLACK);
+        //++c;
 
-        this.squares[c][w] = new King(ChessGame.TeamColor.WHITE);
-        this.squares[c][b] = new King(ChessGame.TeamColor.BLACK);
-        ++c;
+//        this.squares[c][w] = new King(ChessGame.TeamColor.WHITE);
+//        this.squares[c][b] = new King(ChessGame.TeamColor.BLACK);
+//        ++c;
+//
+//        this.squares[c][w] = new Rook(ChessGame.TeamColor.WHITE);
+//        this.squares[c][b] = new Rook(ChessGame.TeamColor.BLACK);
+//        ++w;
+//        --b;
+        //White rank
+        squares[0][0] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
+        squares[0][3] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN);
+        squares[0][4] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING);
+        squares[0][7] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
 
-        this.squares[c][w] = new Rook(ChessGame.TeamColor.WHITE);
-        this.squares[c][b] = new Rook(ChessGame.TeamColor.BLACK);
-        ++w;
-        --b;
+        //Black rank
+        squares[7][0] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
+        squares[7][3] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN);
+        squares[7][4] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING);
+        squares[7][7] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING);
 
     }
 }

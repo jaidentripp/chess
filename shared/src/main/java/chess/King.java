@@ -4,7 +4,10 @@ import chess.ChessPiece.PieceType;
 import java.util.Collection;
 import java.util.HashSet;
 
-public class King extends ChessPiece {
+public class King {
+
+    protected ChessGame.TeamColor color;
+    protected ChessPiece.PieceType pieceType;
     public King(ChessGame.TeamColor color) {
         this.color = color;
         this.pieceType = PieceType.KING;

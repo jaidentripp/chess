@@ -3,14 +3,16 @@ package chess;
 import java.util.Collection;
 import java.util.HashSet;
 
-public class Rook extends ChessPiece {
+public class Rook {
 
+    protected ChessGame.TeamColor color;
+    protected ChessPiece.PieceType pieceType;
     public Rook(ChessGame.TeamColor color) {
         this.color = color;
         pieceType = ChessPiece.PieceType.ROOK;
     }
 
-    @Override
+    //@Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         Collection<ChessMove> moves = new HashSet<ChessMove>();
         shift(board, myPosition, moves, 0, 1);
