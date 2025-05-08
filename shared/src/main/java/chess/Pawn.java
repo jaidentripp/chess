@@ -27,7 +27,7 @@ public class Pawn {
         int promotionRow = (this.color == TeamColor.WHITE) ? 8 : 1;
 
         //one square forward
-        ChessPosition oneStep = new ChessPosition(c, r + direction);
+        ChessPosition oneStep = new ChessPosition(r + direction, c );
         if (isValidPosition(oneStep) && board.getPiece(oneStep) == null) {
             if (oneStep.getRow() == promotionRow) {
                 addPromotionMoves(moves, myPosition, oneStep);
@@ -39,7 +39,7 @@ public class Pawn {
             boolean isAtStartRow = (this.color == TeamColor.WHITE && r == 2) || (this.color ==
                     TeamColor.BLACK && r == 7);
             if (isAtStartRow) {
-                ChessPosition twoStep = new ChessPosition(c, r + 2 * direction);
+                ChessPosition twoStep = new ChessPosition(r + 2 * direction, c);
                 if (board.getPiece(twoStep) == null) {
                     moves.add(new ChessMove(myPosition, twoStep, null));
                 }
@@ -47,7 +47,7 @@ public class Pawn {
         }
 
         //capture diagonally left
-        ChessPosition diagLeft = new ChessPosition(c - 1, r + direction);
+        ChessPosition diagLeft = new ChessPosition(r + direction, c - 1);
         if (isValidPosition(diagLeft)) {
             ChessPiece pieceAtDiagLeft = board.getPiece(diagLeft);
             if (pieceAtDiagLeft != null && pieceAtDiagLeft.getTeamColor() != this.color) {
@@ -60,7 +60,7 @@ public class Pawn {
         }
 
         //capture diagonally right
-        ChessPosition diagRight = new ChessPosition(c + 1, r + direction);
+        ChessPosition diagRight = new ChessPosition(r + direction, c + 1);
         if (isValidPosition(diagRight)) {
             ChessPiece pieceAtDiagRight = board.getPiece(diagRight);
             if (pieceAtDiagRight != null && pieceAtDiagRight.getTeamColor() != this.color) {
@@ -75,99 +75,6 @@ public class Pawn {
         return moves;
     }
 
-//    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-//        this.color = board.getPiece(myPosition).getTeamColor();
-//        int r = myPosition.getRow();
-//        int c = myPosition.getColumn();
-//        Collection<ChessMove> moves = new HashSet();
-//        Collection<ChessPiece.PieceType> promotions = new ArrayList();
-//        Iterator var7;
-//        ChessPiece.PieceType p;
-//        if (this.color == TeamColor.WHITE) {
-//            if (r == 2 && board.getPiece(new ChessPosition(c, 4)) == null && board.getPiece(new ChessPosition(c, 3)) == null) {
-//                this.shift(board, myPosition, moves, 0, 2, (ChessPiece.PieceType)null);
-//            }
-//
-//            if (r == 7) {
-//                promotions.add(PieceType.ROOK);
-//                promotions.add(PieceType.KNIGHT);
-//                promotions.add(PieceType.QUEEN);
-//                promotions.add(PieceType.BISHOP);
-//            } else {
-//                promotions.add((Object)null);
-//            }
-//
-//            if (board.getPiece(new MyChessPosition(c, r + 1)) == null) {
-//                var7 = promotions.iterator();
-//
-//                while(var7.hasNext()) {
-//                    p = (ChessPiece.PieceType)var7.next();
-//                    this.shift(board, myPosition, moves, 0, 1, p);
-//                }
-//            }
-//
-//            if (c > 1 && board.getPiece(new MyChessPosition(c - 1, r + 1)) != null && board.getPiece(new MyChessPosition(c - 1, r + 1)).getTeamColor() != this.color) {
-//                var7 = promotions.iterator();
-//
-//                while(var7.hasNext()) {
-//                    p = (ChessPiece.PieceType)var7.next();
-//                    this.shift(board, myPosition, moves, -1, 1, p);
-//                }
-//            }
-//
-//            if (c < 8 && board.getPiece(new MyChessPosition(c + 1, r + 1)) != null && board.getPiece(new MyChessPosition(c + 1, r + 1)).getTeamColor() != this.color) {
-//                var7 = promotions.iterator();
-//
-//                while(var7.hasNext()) {
-//                    p = (ChessPiece.PieceType)var7.next();
-//                    this.shift(board, myPosition, moves, 1, 1, p);
-//                }
-//            }
-//        } else {
-//            if (r == 7 && board.getPiece(new MyChessPosition(c, 5)) == null && board.getPiece(new MyChessPosition(c, 6)) == null) {
-//                this.shift(board, myPosition, moves, 0, -2, (ChessPiece.PieceType)null);
-//            }
-//
-//            if (r == 2) {
-//                promotions.add(PieceType.ROOK);
-//                promotions.add(PieceType.KNIGHT);
-//                promotions.add(PieceType.QUEEN);
-//                promotions.add(PieceType.BISHOP);
-//            } else {
-//                promotions.add((Object)null);
-//            }
-//
-//            if (board.getPiece(new MyChessPosition(c, r - 1)) == null) {
-//                var7 = promotions.iterator();
-//
-//                while(var7.hasNext()) {
-//                    p = (ChessPiece.PieceType)var7.next();
-//                    this.shift(board, myPosition, moves, 0, -1, p);
-//                }
-//            }
-//
-//            if (c > 1 && board.getPiece(new MyChessPosition(c - 1, r - 1)) != null && board.getPiece(new MyChessPosition(c - 1, r - 1)).getTeamColor() != this.color) {
-//                var7 = promotions.iterator();
-//
-//                while(var7.hasNext()) {
-//                    p = (ChessPiece.PieceType)var7.next();
-//                    this.shift(board, myPosition, moves, -1, -1, p);
-//                }
-//            }
-//
-//            if (c < 8 && board.getPiece(new MyChessPosition(c + 1, r - 1)) != null && board.getPiece(new MyChessPosition(c + 1, r - 1)).getTeamColor() != this.color) {
-//                var7 = promotions.iterator();
-//
-//                while(var7.hasNext()) {
-//                    p = (ChessPiece.PieceType)var7.next();
-//                    this.shift(board, myPosition, moves, 1, -1, p);
-//                }
-//            }
-//        }
-//
-//        return moves;
-//    }
-
     private boolean isValidPosition(ChessPosition pos) {
         int c = pos.getColumn();
         int r = pos.getRow();
@@ -180,19 +87,4 @@ public class Pawn {
         moves.add(new ChessMove(from, to, PieceType.BISHOP));
         moves.add(new ChessMove(from, to, PieceType.KNIGHT));
     }
-
-//    private void shift(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves, int c_direction, int r_direction, ChessPiece.PieceType promo) {
-//        int c = myPosition.getColumn();
-//        int r = myPosition.getRow();
-//        c += c_direction;
-//        r += r_direction;
-//        if (c > 0 && c < 9 && r > 0 && r < 9) {
-//            MyChessPosition pos = new MyChessPosition(c, r);
-//            if (board.getPiece(pos) == null) {
-//                moves.add(new MyChessMove((MyChessPosition)myPosition, pos, promo));
-//            } else if (board.getPiece(pos).getTeamColor() != this.color) {
-//                moves.add(new MyChessMove((MyChessPosition)myPosition, pos, promo));
-//            }
-//        }
-//    }
 }

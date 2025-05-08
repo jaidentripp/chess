@@ -22,17 +22,46 @@ public class Bishop {
         return moves;
     }
 
+//    private void shift(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves, int c_direction, int r_direction) {
+//        int c = myPosition.getColumn() + c_direction;
+//        int r = myPosition.getRow() + r_direction;
+//        if (c >= 1 && c <= 8 && r >= 1 && r <= 8) {
+//            ChessPosition pos = new ChessPosition(r, c);
+//            if (board.getPiece(pos) == null) {
+//                moves.add(new ChessMove((ChessPosition) myPosition, pos, (ChessPiece.PieceType)null));
+//            } else if (board.getPiece(pos).getTeamColor() != this.color) {
+//                moves.add(new ChessMove((ChessPosition) myPosition, pos, (ChessPiece.PieceType)null));
+//            }
+//        }
+//    }
+
     private void shift(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves, int c_direction, int r_direction) {
         int c = myPosition.getColumn() + c_direction;
         int r = myPosition.getRow() + r_direction;
-        if (c > 0 && c < 9 && r > 0 && r < 9) {
+
+        // Continue moving in the direction until we hit the edge or a piece
+        while (c >= 1 && c <= 8 && r >= 1 && r <= 8) {
             ChessPosition pos = new ChessPosition(r, c);
-            if (board.getPiece(pos) == null) {
-                moves.add(new ChessMove((ChessPosition) myPosition, pos, (ChessPiece.PieceType)null));
-            } else if (board.getPiece(pos).getTeamColor() != this.color) {
-                moves.add(new ChessMove((ChessPosition) myPosition, pos, (ChessPiece.PieceType)null));
+            ChessPiece piece = board.getPiece(pos);
+
+            if (piece == null) {
+                // Empty square, add move and continue
+                moves.add(new ChessMove(myPosition, pos, null));
+            } else {
+                // There is a piece here
+                if (piece.getTeamColor() != this.color) {
+                    // Enemy piece, can capture, add move
+                    moves.add(new ChessMove(myPosition, pos, null));
+                }
+                // Stop moving further in this direction after hitting any piece
+                break;
             }
+
+            // Move further in the same direction
+            c += c_direction;
+            r += r_direction;
         }
     }
+
 }
 
