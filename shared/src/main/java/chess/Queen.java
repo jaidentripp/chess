@@ -29,25 +29,47 @@ public class Queen {
         int c = myPosition.getColumn();
         int r = myPosition.getRow();
 
-        while(true) {
+        while (true) {
             c += c_direction;
             r += r_direction;
-            if (c <= 0 || c >= 9 || r <= 0 || r >= 9) {
-                return;
-            }
-
-            ChessPosition pos = new ChessPosition(r, c);
-            if (board.getPiece(pos) != null) {
-                if (board.getPiece(pos).getTeamColor() != this.color) {
-                    moves.add(new ChessMove((ChessPosition) myPosition, pos, (ChessPiece.PieceType)null));
+            if (c > 0 && c < 9 && r > 0 && r < 9) {
+                ChessPosition pos = new ChessPosition(r, c);
+                if (board.getPiece(pos) == null) {
+                    moves.add(new ChessMove(myPosition, pos, null));
+                } else if (board.getPiece(pos).getTeamColor() != this.color) {
+                    moves.add(new ChessMove(myPosition, pos, null));
+                    return;
+                } else {
                     return;
                 }
-
+            } else {
                 return;
             }
-
-            moves.add(new ChessMove((ChessPosition) myPosition, pos, (ChessPiece.PieceType)null));
         }
     }
+//    private void shift(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves, int c_direction, int r_direction) {
+//        int c = myPosition.getColumn();
+//        int r = myPosition.getRow();
+//
+//        while(true) {
+//            c += c_direction;
+//            r += r_direction;
+//            if (c <= 0 || c >= 9 || r <= 0 || r >= 9) {
+//                return;
+//            }
+//
+//            ChessPosition pos = new ChessPosition(r, c);
+//            if (board.getPiece(pos) != null) {
+//                if (board.getPiece(pos).getTeamColor() != this.color) {
+//                    moves.add(new ChessMove((ChessPosition) myPosition, pos, (ChessPiece.PieceType)null));
+//                    return;
+//                }
+//
+//                return;
+//            }
+//
+//            moves.add(new ChessMove((ChessPosition) myPosition, pos, (ChessPiece.PieceType)null));
+//        }
+//    }
 }
 
