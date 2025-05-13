@@ -144,6 +144,9 @@ public class ChessGame {
      */
     public boolean isInStalemate(TeamColor teamColor) {
         //throw new RuntimeException("Not implemented");
+        if (teamColor != currentTurn) {
+            return false;
+        }
         if (isKingInCheck(board, teamColor)) {
             return false;
         }
