@@ -60,9 +60,9 @@ public class ChessGame {
         if (piece == null) {
             return null;
         }
-        if (piece.getTeamColor() != currentTurn) {
-            return new ArrayList<>();
-        }
+//        if (piece.getTeamColor() != currentTurn) {
+//            return new ArrayList<>();
+//        }
 
         Collection<ChessMove> allMoves = piece.pieceMoves(board, startPosition);
         Collection<ChessMove> validMoves = new ArrayList<>();
@@ -70,7 +70,7 @@ public class ChessGame {
         for (ChessMove move : allMoves) {
             ChessBoard tempBoard = copyBoard(board);
             makeMoveOnBoard(tempBoard, move);
-            if (!isKingInCheck(tempBoard, currentTurn)) {
+            if (!isKingInCheck(tempBoard, piece.getTeamColor())) {
                 validMoves.add(move);
             }
         }
