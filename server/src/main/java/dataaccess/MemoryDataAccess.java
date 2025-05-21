@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class MemoryDataAccess implements DataAccess {
     private final Map<String, UserData> users = new HashMap<>();
-    private final Map<String, GameData> games = new HashMap<>();
+    private final Map<Integer, GameData> games = new HashMap<>();
     private final Map<String, AuthData> auths = new HashMap<>();
 
     //clear all data
@@ -48,7 +48,7 @@ public class MemoryDataAccess implements DataAccess {
         if (games.containsKey(game.gameID())) {
             throw new DataAccessException("Game already exists");
         }
-        games.put(String.valueOf(game.gameID()), game);
+        games.put(game.gameID(), game);
     }
 
     @Override
@@ -66,7 +66,7 @@ public class MemoryDataAccess implements DataAccess {
         if (game == null || !games.containsKey(game.gameID())) {
             throw new DataAccessException("Game does not exist.");
         }
-        games.put(String.valueOf(game.gameID()), game);
+        games.put(game.gameID(), game);
     }
 
     //auth methods

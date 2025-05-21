@@ -20,6 +20,7 @@ import service.GameService;
 import result.ListGamesResult;
 import request.CreateGameRequest;
 import result.CreateGameResult;
+import request.JoinGameRequest;
 
 public class Server {
 
@@ -164,6 +165,36 @@ public class Server {
             } catch (Exception e) {
                 res.status(500);
                 return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
+            }
+        });
+
+        //Join game endpoint
+        Spark.put("/game", (req, res) -> {
+           try {
+               String authToken = req.headers("authorization");
+               JoinGameRequest request = gson.fromJson(req.body(), JoinGameRequest.class);
+               gameService.joinGame(request, authToken);
+               res.type("application/json");
+               res.status(200);
+               return"{}";
+           } catch (com.google.gson.JsonSyntaxException e) {
+               res.status(400);
+               return gson.toJson(Map.of("message", "Error: bad request"));
+            } catch (dataaccess.DataAccessException e) {
+               String message = e.getMessage();
+               if ("Error: bad request".equals(message)) {
+                   res.status(400);
+               } else if ("Error: unauthorized".equals(message)) {
+                   res.status(401);
+               } else if ("Error: already taken".equals(message)) {
+                   res.status(403);
+               } else {
+                   res.status(500);
+               }
+               return gson.toJson(Map.of("message", message));
+           } catch (Exception e) {
+               res.status(500);
+               return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
             }
         });
 
