@@ -1,7 +1,9 @@
 package server;
 
 import com.google.gson.JsonSyntaxException;
+import request.LoginRequest;
 import request.RegisterRequest;
+import result.LoginResult;
 import result.RegisterResult;
 import service.UserService;
 import spark.*;
@@ -70,6 +72,43 @@ public class Server {
                     default -> res.status(500);
                 }
                 return gson.toJson(Map.of("message", message));
+            } catch (Exception e) {
+                res.status(500);
+                return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
+            }
+        });
+
+        //Login endpoint
+        Spark.post("/session", (req, res) -> {
+            try {
+                LoginRequest request = gson.fromJson(req.body(), LoginRequest.class);
+                LoginResult result = userService.login(request);
+                res.type("application/json");
+                res.status(200);
+                return gson.toJson(result);
+            } catch (JsonSyntaxException e) {
+                res.status(400);
+                return gson.toJson(Map.of("message", "Error: bad request"));
+            } catch (DataAccessException e) {
+                res.status(e.getMessage().equals("Error: unauthorized") ? 401 : 500);
+                return gson.toJson(Map.of("message", e.getMessage()));
+            } catch (Exception e) {
+                res.status(500);
+                return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
+            }
+        });
+
+        //Logout endpoint
+        Spark.delete("/session", (req ,res) -> {
+            try {
+                String authToken = req.headers("authorization");
+                userService.logout(authToken);
+                res.status(200);
+                res.type("application/json");
+                return "{}";
+            } catch (DataAccessException e) {
+                res.status(401);
+                return gson.toJson(Map.of("message", e.getMessage()));
             } catch (Exception e) {
                 res.status(500);
                 return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
