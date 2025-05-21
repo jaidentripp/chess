@@ -98,8 +98,16 @@ public class Server {
                 res.status(400);
                 return gson.toJson(Map.of("message", "Error: bad request"));
             } catch (DataAccessException e) {
-                res.status(e.getMessage().equals("Error: unauthorized") ? 401 : 500);
-                return gson.toJson(Map.of("message", e.getMessage()));
+                String message = e.getMessage();
+                if ("Error: bad request".equals(message)) {
+                    res.status(400);
+                } else if ("Error: unauthorized".equals(message)) {
+                    res.status(401);
+                } else {
+                    res.status(500);
+                }
+                //res.status(e.getMessage().equals("Error: unauthorized") ? 401 : 500);
+                return gson.toJson(Map.of("message", message));
             } catch (Exception e) {
                 res.status(500);
                 return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
