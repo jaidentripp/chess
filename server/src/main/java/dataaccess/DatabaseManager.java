@@ -75,46 +75,46 @@ public class DatabaseManager {
         connectionUrl = String.format("jdbc:mysql://%s:%d", host, port);
     }
 
-    public static void initializeDatabase() throws DataAccessException {
-        try (var conn = DriverManager.getConnection(connectionUrl, dbUsername, dbPassword)) {
-            createDatabase();
-            String[] createTableStatements = {
-                    """
-                    CREATE TABLE IF NOT EXISTS users (
-                        username VARCHAR(255) PRIMARY KEY,
-                        password VARCHAR(255) NOT NULL,
-                        email VARCHAR(255) NOT NULL
-                    )
-                    """,
-                    """
-                    CREATE TABLE IF NOT EXISTS auths (
-                        authToken VARCHAR(255) PRIMARY KEY,
-                        username VARCHAR(255) NOT NULL,
-                        FOREIGN KEY (username) REFERENCES users(username)
-                    )
-                    """,
-                    """
-                    CREATE TABLE IF NOT EXISTS games (
-                        gameID INT AUTO_INCREMENT PRIMARY KEY,
-                        whiteUsername VARCHAR(255),
-                        blackUsername VARCHAR(255),
-                        gameName VARCHAR(255) NOT NULL,
-                        game TEXT NOT NULL,
-                        FOREIGN KEY (whiteUsername) REFERENCES users(username),
-                        FOREIGN KEY (blackUsername) REFERENCES users(username)
-                    )
-                    """
-            };
-
-            try (var statement = conn.createStatement()) {
-                statement.execute("USE " + databaseName);
-
-                for (var sql : createTableStatements) {
-                    statement.execute(sql);
-                }
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Failed to initialize database: " + e.getMessage(), e);
-        }
-    }
+//    public static void initializeDatabase() throws DataAccessException {
+//        try (var conn = DriverManager.getConnection(connectionUrl, dbUsername, dbPassword)) {
+//            createDatabase();
+//            String[] createTableStatements = {
+//                    """
+//                    CREATE TABLE IF NOT EXISTS users (
+//                        username VARCHAR(255) PRIMARY KEY,
+//                        password VARCHAR(255) NOT NULL,
+//                        email VARCHAR(255) NOT NULL
+//                    )
+//                    """,
+//                    """
+//                    CREATE TABLE IF NOT EXISTS auths (
+//                        authToken VARCHAR(255) PRIMARY KEY,
+//                        username VARCHAR(255) NOT NULL,
+//                        FOREIGN KEY (username) REFERENCES users(username)
+//                    )
+//                    """,
+//                    """
+//                    CREATE TABLE IF NOT EXISTS games (
+//                        gameID INT AUTO_INCREMENT PRIMARY KEY,
+//                        whiteUsername VARCHAR(255),
+//                        blackUsername VARCHAR(255),
+//                        gameName VARCHAR(255) NOT NULL,
+//                        game TEXT NOT NULL,
+//                        FOREIGN KEY (whiteUsername) REFERENCES users(username),
+//                        FOREIGN KEY (blackUsername) REFERENCES users(username)
+//                    )
+//                    """
+//            };
+//
+//            try (var statement = conn.createStatement()) {
+//                statement.execute("USE " + databaseName);
+//
+//                for (var sql : createTableStatements) {
+//                    statement.execute(sql);
+//                }
+//            }
+//        } catch (SQLException e) {
+//            throw new DataAccessException("Failed to initialize database: " + e.getMessage(), e);
+//        }
+//    }
 }

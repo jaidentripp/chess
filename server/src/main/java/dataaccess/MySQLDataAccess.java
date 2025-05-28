@@ -112,7 +112,7 @@ public class MySQLDataAccess implements DataAccess {
                 games.add(new GameData(
                         rs.getInt("gameID"),
                         rs.getString("whiteUsername"),
-                        rs.getString("blackUserName"),
+                        rs.getString("blackUsername"),
                         rs.getString("gameName"),
                         chessGame
                 ));
@@ -195,7 +195,7 @@ public class MySQLDataAccess implements DataAccess {
             stmt.executeUpdate("DELETE FROM games");
             stmt.executeUpdate("DELETE FROM users");
         } catch (SQLException e) {
-
+            throw new DataAccessException("Error: " + e.getMessage());
         }
     }
 

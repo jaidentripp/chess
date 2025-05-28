@@ -23,7 +23,15 @@ import request.CreateGameRequest;
 import result.CreateGameResult;
 import request.JoinGameRequest;
 
+import dataaccess.DataAccess;
+import dataaccess.MySQLDataAccess;
+
 public class Server {
+    //private final DataAccess dao;
+
+//    public Server() {
+//        this.dao = new MySQLDataAccess();
+//    }
 
 //    public int run(int desiredPort) {
 //        Spark.port(desiredPort);
@@ -40,13 +48,13 @@ public class Server {
 //    }
 
     public int run(int desiredPort) {
-        try {
-            DatabaseManager.initializeDatabase();
-        } catch (DataAccessException e) {
-            System.err.println("Fatal error initializing database: " + e.getMessage());
-            e.printStackTrace();
-            throw new RuntimeException("Failed to initialize database", e);
-        }
+//        try {
+//            DatabaseManager.initializeDatabase();
+//        } catch (DataAccessException e) {
+//            System.err.println("Fatal error initializing database: " + e.getMessage());
+//            e.printStackTrace();
+//            throw new RuntimeException("Failed to initialize database", e);
+//        }
 
         Spark.port(desiredPort);
         Spark.staticFileLocation("web");
