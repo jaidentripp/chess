@@ -11,15 +11,50 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class MySQLDataAccess implements DataAccess {
     private final Gson gson = new Gson();
+
+    public MySQLDataAccess() throws DataAccessException {
+        createTablesIfNotExists();
+    }
+
+    private void createTablesIfNotExists() throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection();
+             var stmt = conn.createStatement()) {
+            stmt.executeUpdate("""
+                CREATE TABLE IF NOT EXISTS users (
+                    username VARCHAR(255) PRIMARY KEY,
+                    password_hash VARCHAR(255) NOT NULL,
+                    email VARCHAR(255) NOT NULL UNIQUE
+                )""");
+            stmt.executeUpdate("""
+                CREATE TABLE IF NOT EXISTS auths (
+                    authToken VARCHAR(255) PRIMARY KEY,
+                    username VARCHAR(255) NOT NULL,
+                    FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE
+                )""");
+            stmt.executeUpdate("""
+                CREATE TABLE IF NOT EXISTS games (
+                    gameID INT AUTO_INCREMENT PRIMARY KEY,
+                    whiteUsername VARCHAR(255),
+                    blackUsername VARCHAR(255),
+                    gameName VARCHAR(255) NOT NULL,
+                    game TEXT NOT NULL,
+                    FOREIGN KEY (whiteUsername) REFERENCES users(username) ON DELETE SET NULL,
+                    FOREIGN KEY (blackUsername) REFERENCES users(username) ON DELETE SET NULL
+                )""");
+        } catch (SQLException ex) {
+            throw new DataAccessException("Failed to create tables", ex);
+        }
+    }
 
     //Users
     @Override
     public void insertUser(UserData user) throws DataAccessException {
         String hashedPassword = BCrypt.hashpw(user.password(), BCrypt.gensalt());
-        String sql = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO users (username, password_hash, email) VALUES (?, ?, ?)";
         try (var conn = DatabaseManager.getConnection();
              var ps = conn.prepareStatement(sql)) {
             ps.setString(1, user.username());
@@ -34,6 +69,40 @@ public class MySQLDataAccess implements DataAccess {
         }
     }
 
+//    @Override
+//    public void registerUser(String username, String password, String email) throws DataAccessException {
+//        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+//        try (var conn = DatabaseManager.getConnection();
+//             var statement = conn.prepareStatement("INSERT INTO users (username, password_hash, email) VALUES (?, ?, ?)")) {
+//            statement.setString(1, username);
+//            statement.setString(2, hashedPassword);
+//            statement.setString(3, email);
+//            statement.executeUpdate();
+//        } catch (SQLException e) {
+//            if (e.getMessage().contains("Duplicate")) {
+//                throw new DataAccessException("Error: already taken");
+//            }
+//            throw new DataAccessException("Error: " + e.getMessage());
+//        }
+//    }
+
+    @Override
+    public boolean verifyUser(String username, String password) throws DataAccessException {
+        String sql = "SELECT password_hash FROM users WHERE username = ?";
+        try(var conn = DatabaseManager.getConnection();
+            var statement = conn.prepareStatement(sql)) {
+            statement.setString(1, username);
+            var rs = statement.executeQuery();
+                if (rs.next()) {
+                    String hash = rs.getString("password_hash");
+                    return BCrypt.checkpw(password, hash);
+                }
+                return false;
+        } catch (SQLException e) {
+            throw new DataAccessException("Error verifying user", e);
+        }
+    }
+
     @Override
     public UserData getUser(String username) throws DataAccessException {
         String sql = "SELECT * FROM users WHERE username=?";
@@ -44,7 +113,7 @@ public class MySQLDataAccess implements DataAccess {
             if (rs.next()) {
                 return new UserData(
                         rs.getString("username"),
-                        rs.getString("password"),
+                        rs.getString("password_hash"),
                         rs.getString("email")
                 );
             }
