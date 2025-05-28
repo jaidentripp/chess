@@ -1,6 +1,7 @@
 package server;
 
 import com.google.gson.JsonSyntaxException;
+import dataaccess.DatabaseManager;
 import request.LoginRequest;
 import request.RegisterRequest;
 import result.ListGamesResult;
@@ -39,6 +40,14 @@ public class Server {
 //    }
 
     public int run(int desiredPort) {
+        try {
+            DatabaseManager.initializeDatabase();
+        } catch (DataAccessException e) {
+            System.err.println("Fatal error initializing database: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to initialize database", e);
+        }
+
         Spark.port(desiredPort);
         Spark.staticFileLocation("web");
 

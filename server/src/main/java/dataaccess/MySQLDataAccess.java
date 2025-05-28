@@ -25,6 +25,7 @@ public class MySQLDataAccess implements DataAccess {
             ps.setString(1, user.username());
             ps.setString(2, hashedPassword);
             ps.setString(3, user.email());
+            ps.executeUpdate();
         } catch (SQLException e) {
             if (e.getMessage().contains("Duplicate")) {
                 throw new DataAccessException("Error: already taken");
