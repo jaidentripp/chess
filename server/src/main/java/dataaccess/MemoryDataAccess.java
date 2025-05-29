@@ -49,7 +49,7 @@ public class MemoryDataAccess implements DataAccess {
     }
     //game methods
     @Override
-    public void insertGame(GameData game) throws DataAccessException {
+    public int insertGame(GameData game) throws DataAccessException {
         if (game == null) {
             throw new DataAccessException("Game is null");
         }
@@ -57,6 +57,7 @@ public class MemoryDataAccess implements DataAccess {
             throw new DataAccessException("Game already exists");
         }
         games.put(game.gameID(), game);
+        return game.gameID();
     }
 
     @Override

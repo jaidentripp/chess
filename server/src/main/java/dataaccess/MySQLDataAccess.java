@@ -32,8 +32,7 @@ public class MySQLDataAccess implements DataAccess {
             stmt.executeUpdate("""
                 CREATE TABLE IF NOT EXISTS auths (
                     authToken VARCHAR(255) PRIMARY KEY,
-                    username VARCHAR(255) NOT NULL,
-                    FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE
+                    username VARCHAR(255) NOT NULL
                 )""");
             stmt.executeUpdate("""
                 CREATE TABLE IF NOT EXISTS games (
@@ -41,9 +40,7 @@ public class MySQLDataAccess implements DataAccess {
                     whiteUsername VARCHAR(255),
                     blackUsername VARCHAR(255),
                     gameName VARCHAR(255) NOT NULL,
-                    game TEXT NOT NULL,
-                    FOREIGN KEY (whiteUsername) REFERENCES users(username) ON DELETE SET NULL,
-                    FOREIGN KEY (blackUsername) REFERENCES users(username) ON DELETE SET NULL
+                    game TEXT NOT NULL
                 )""");
         } catch (SQLException ex) {
             throw new DataAccessException("Failed to create tables", ex);
@@ -53,7 +50,12 @@ public class MySQLDataAccess implements DataAccess {
     //Users
     @Override
     public void insertUser(UserData user) throws DataAccessException {
+        System.out.println("Registering user: " + user.username() + ", password: " + user.password());
+
         String hashedPassword = BCrypt.hashpw(user.password(), BCrypt.gensalt());
+
+        System.out.println("Hashed password: " + hashedPassword);
+
         String sql = "INSERT INTO users (username, password_hash, email) VALUES (?, ?, ?)";
         try (var conn = DatabaseManager.getConnection();
              var ps = conn.prepareStatement(sql)) {
@@ -86,18 +88,51 @@ public class MySQLDataAccess implements DataAccess {
 //        }
 //    }
 
+//    @Override
+//    public boolean verifyUser(String username, String password) throws DataAccessException {
+//        System.out.println("Verifying user: " + username + ", password: " + password);
+//        String sql = "SELECT password_hash FROM users WHERE username = ?";
+//        try(var conn = DatabaseManager.getConnection();
+//            var statement = conn.prepareStatement(sql)) {
+//            statement.setString(1, username);
+//            var rs = statement.executeQuery();
+//                if (rs.next()) {
+//                    String hash = rs.getString("password_hash");
+//
+//                    System.out.println("Found user. Stored hash: " + hash);
+//
+//                    boolean matches = BCrypt.checkpw(password, hash);
+//
+//                    System.out.println("BCrypt password match: " + matches);
+//                    return BCrypt.checkpw(password, hash);
+//                }
+//                System.out.println("User not found!");
+//                return false;
+//        } catch (SQLException e) {
+//            throw new DataAccessException("Error verifying user", e);
+//        }
+//    }
+
     @Override
     public boolean verifyUser(String username, String password) throws DataAccessException {
+        //System.out.println("Verifying user: " + username + ", password: " + password);
+        System.out.println("verifyUser called with: username=" + username + ", password=" + password);
+
         String sql = "SELECT password_hash FROM users WHERE username = ?";
         try(var conn = DatabaseManager.getConnection();
             var statement = conn.prepareStatement(sql)) {
             statement.setString(1, username);
             var rs = statement.executeQuery();
-                if (rs.next()) {
-                    String hash = rs.getString("password_hash");
-                    return BCrypt.checkpw(password, hash);
-                }
+            if (rs.next()) {
+                String hash = rs.getString("password_hash");
+                System.out.println("Found user. Stored hash: " + hash);
+                boolean matches = BCrypt.checkpw(password, hash);
+                System.out.println("BCrypt password match: " + matches);
+                return matches;
+            } else {
+                System.out.println("User not found!");
                 return false;
+            }
         } catch (SQLException e) {
             throw new DataAccessException("Error verifying user", e);
         }
@@ -125,7 +160,7 @@ public class MySQLDataAccess implements DataAccess {
 
     //Games
     @Override
-    public void insertGame(GameData game) throws DataAccessException {
+    public int insertGame(GameData game) throws DataAccessException {
         String sql = "INSERT INTO games (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
         try (var conn = DatabaseManager.getConnection();
              var ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -139,11 +174,13 @@ public class MySQLDataAccess implements DataAccess {
             try (var rs = ps.getGeneratedKeys()) {
                 if (rs.next()) {
                     int newGameID = rs.getInt(1);
+                    return newGameID;
                 }
             }
         } catch (SQLException e) {
             throw new DataAccessException("Error: " + e.getMessage());
         }
+        throw new DataAccessException("Couldn't generate gameID");
     }
 
     @Override
@@ -260,9 +297,17 @@ public class MySQLDataAccess implements DataAccess {
     public void clear() throws DataAccessException {
         try (var conn = DatabaseManager.getConnection();
              var stmt = conn.createStatement()) {
-            stmt.executeUpdate("DELETE FROM auths");
-            stmt.executeUpdate("DELETE FROM games");
-            stmt.executeUpdate("DELETE FROM users");
+            //stmt.execute("SET FOREIGN_KEY_CHECKS = 0");
+            stmt.executeUpdate("TRUNCATE TABLE auths");
+            stmt.executeUpdate("TRUNCATE TABLE games");
+            stmt.executeUpdate("TRUNCATE TABLE users");
+            //stmt.executeUpdate("SET FOREIGN_KEY_CHECKS = 1");
+
+            System.out.println("Database cleared: all tables truncated and auto-increment counters reset.");
+
+            //stmt.executeUpdate("DELETE FROM auths");
+            //stmt.executeUpdate("DELETE FROM games");
+            //stmt.executeUpdate("DELETE FROM users");
         } catch (SQLException e) {
             throw new DataAccessException("Error: " + e.getMessage());
         }

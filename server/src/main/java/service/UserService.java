@@ -34,13 +34,71 @@ public class UserService {
         return new RegisterResult(req.username(), authToken);
     }
 
+//    public LoginResult login(LoginRequest req) throws DataAccessException {
+//        System.out.println("UserService.login called with: username=" + req.username() + ", password=" + req.password());
+//
+//        if (req == null || req.username() == null || req.password() == null || req.username().isBlank() || req.password().isBlank()) {
+//            throw new DataAccessException("Error: bad request");
+//        }
+//        UserData user = dao.getUser(req.username());
+//        if (user == null || !user.password().equals(req.password())) {
+//        //if (user == null || !BCrypt.checkpw(req.password(), user.password())) {
+//            throw new DataAccessException("Error: unauthorized");
+//        }
+//
+////        boolean isValid = dao.verifyUser(req.username(), req.password());
+////        if (!isValid) {
+////            throw new DataAccessException("Error: unauthorized");
+////        }
+//
+//        //generate new auth token
+//        String authToken = UUID.randomUUID().toString();
+//        AuthData auth = new AuthData(authToken, req.username());
+//        dao.insertAuth(auth);
+//        return new LoginResult(req.username(), authToken);
+////        String authToken = UUID.randomUUID().toString();
+////        dao.insertAuth(new AuthData(authToken, req.username()));
+////        return new LoginResult(req.username(), authToken);
+//    }
+
     public LoginResult login(LoginRequest req) throws DataAccessException {
-        if (req == null || req.username() == null || req.password() == null || req.username().isBlank() || req.password().isBlank()) {
+        System.out.println("UserService.login called with: username=" + req.username() + ", password=" + req.password());
+
+        if (req == null) {
+            System.out.println("LoginRequest is null");
             throw new DataAccessException("Error: bad request");
         }
+        if (req.username() == null) {
+            System.out.println("Username is null");
+            throw new DataAccessException("Error: bad request");
+        }
+        if (req.password() == null) {
+            System.out.println("Password is null");
+            throw new DataAccessException("Error: bad request");
+        }
+        if (req.username().isBlank()) {
+            System.out.println("Username is blank");
+            throw new DataAccessException("Error: bad request");
+        }
+        if (req.password().isBlank()) {
+            System.out.println("Password is blank");
+            throw new DataAccessException("Error: bad request");
+        }
+
         UserData user = dao.getUser(req.username());
-        if (user == null || !user.password().equals(req.password())) {
-        //if (user == null || !BCrypt.checkpw(req.password(), user.password())) {
+        if (user == null) {
+            System.out.println("No user found for username: " + req.username());
+            throw new DataAccessException("Error: unauthorized");
+        } else {
+            System.out.println("User found: " + user.username() + ", hashed password in DB: " + user.password());
+        }
+
+        // If you are storing hashed passwords, use BCrypt to check:
+        boolean passwordMatch = BCrypt.checkpw(req.password(), user.password());
+        System.out.println("BCrypt password match: " + passwordMatch);
+
+        if (!passwordMatch) {
+            System.out.println("Password does not match for user: " + req.username());
             throw new DataAccessException("Error: unauthorized");
         }
 
@@ -48,6 +106,7 @@ public class UserService {
         String authToken = UUID.randomUUID().toString();
         AuthData auth = new AuthData(authToken, req.username());
         dao.insertAuth(auth);
+        System.out.println("Login successful for user: " + req.username() + ", authToken: " + authToken);
         return new LoginResult(req.username(), authToken);
     }
 

@@ -15,6 +15,8 @@ import dataaccess.DataAccess;
 import dataaccess.MemoryDataAccess;
 import service.ClearService;
 import dataaccess.DataAccessException;
+
+import java.sql.SQLException;
 import java.util.Map;
 
 import service.GameService;
@@ -27,11 +29,6 @@ import dataaccess.DataAccess;
 import dataaccess.MySQLDataAccess;
 
 public class Server {
-    //private final DataAccess dao;
-
-//    public Server() {
-//        this.dao = new MySQLDataAccess();
-//    }
 
 //    public int run(int desiredPort) {
 //        Spark.port(desiredPort);
@@ -48,18 +45,20 @@ public class Server {
 //    }
 
     public int run(int desiredPort) {
-//        try {
-//            DatabaseManager.initializeDatabase();
-//        } catch (DataAccessException e) {
-//            System.err.println("Fatal error initializing database: " + e.getMessage());
-//            e.printStackTrace();
-//            throw new RuntimeException("Failed to initialize database", e);
-//        }
 
         Spark.port(desiredPort);
         Spark.staticFileLocation("web");
 
-        DataAccess dao = new MemoryDataAccess();
+        DataAccess dao;
+        try {
+            DatabaseManager.createDatabase();
+            dao = new MySQLDataAccess();
+        } catch (DataAccessException e) {
+            System.err.println("Fatal error initializing database: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to initialize database", e);
+        }
+        //DataAccess dao = new MemoryDataAccess();
         Gson gson = new Gson();
         ClearService clearService = new ClearService(dao);
         UserService userService = new UserService(dao);
@@ -96,6 +95,10 @@ public class Server {
                     case "Error: already taken" -> res.status(403);
                     default -> res.status(500);
                 }
+                //prefix with error
+                if (!message.toLowerCase().contains("error")) {
+                    message = "Error: " + message;
+                }
                 return gson.toJson(Map.of("message", message));
             } catch (Exception e) {
                 res.status(500);
@@ -107,6 +110,9 @@ public class Server {
         Spark.post("/session", (req, res) -> {
             try {
                 LoginRequest request = gson.fromJson(req.body(), LoginRequest.class);
+
+                System.out.println("Parsed LoginRequest: username=" + request.username() + ", password=" + request.password());
+
                 LoginResult result = userService.login(request);
                 res.type("application/json");
                 res.status(200);
@@ -124,6 +130,10 @@ public class Server {
                     res.status(500);
                 }
                 //res.status(e.getMessage().equals("Error: unauthorized") ? 401 : 500);
+                // Always prefix with "Error: "
+                if (!message.toLowerCase().contains("error")) {
+                    message = "Error: " + message;
+                }
                 return gson.toJson(Map.of("message", message));
             } catch (Exception e) {
                 res.status(500);
@@ -140,8 +150,19 @@ public class Server {
                 res.type("application/json");
                 return "{}";
             } catch (DataAccessException e) {
-                res.status(401);
-                return gson.toJson(Map.of("message", e.getMessage()));
+                String message = e.getMessage();
+                if ("Error: unauthorized".equals(message)) {
+                    res.status(401);
+                } else {
+                    res.status(500);
+                }
+                //res.status(401);
+                // Always prefix with "Error: "
+                //return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
+                if (!message.toLowerCase().contains("error")) {
+                    message = "Error: " + message;
+                }
+                return gson.toJson(Map.of("message", message));
             } catch (Exception e) {
                 res.status(500);
                 return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
@@ -157,8 +178,19 @@ public class Server {
                 res.status(200);
                 return gson.toJson(result);
             } catch (DataAccessException e) {
-                res.status(401);
-                return gson.toJson(Map.of("message", e.getMessage()));
+                String message = e.getMessage();
+                if ("Error: unauthorized".equals(message)) {
+                    res.status(401);
+                } else {
+                    res.status(500);
+                }
+                if (!message.toLowerCase().contains("error")) {
+                    message = "Error: " + message;
+                }
+                return gson.toJson(Map.of("message", message));
+                //res.status(401);
+                // Always prefix with "Error: "
+                //return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
             } catch (Exception e) {
                 res.status(500);
                 return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
@@ -186,6 +218,10 @@ public class Server {
                 } else {
                     res.status(500);
                 }
+                // Always prefix with "Error: "
+                if (!message.toLowerCase().contains("error")) {
+                    message = "Error: " + message;
+                }
                 return gson.toJson(Map.of("message", message));
             } catch (Exception e) {
                 res.status(500);
@@ -196,8 +232,16 @@ public class Server {
         //Join game endpoint
         Spark.put("/game", (req, res) -> {
            try {
+               System.out.println("Raw join request: " + req.body());
+
                String authToken = req.headers("authorization");
+
+               System.out.println("Auth token: " + authToken);
+
                JoinGameRequest request = gson.fromJson(req.body(), JoinGameRequest.class);
+
+               System.out.println("Parsed JoinGameRequest: gameID=" + request.gameID() + ", color=" + request.playerColor());
+
                gameService.joinGame(request, authToken);
                res.type("application/json");
                res.status(200);
@@ -215,6 +259,10 @@ public class Server {
                    res.status(403);
                } else {
                    res.status(500);
+               }
+               // Always prefix with "Error: "
+               if (!message.toLowerCase().contains("error")) {
+                   message = "Error: " + message;
                }
                return gson.toJson(Map.of("message", message));
            } catch (Exception e) {
