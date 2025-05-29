@@ -12,37 +12,19 @@ import spark.*;
 
 import com.google.gson.Gson;
 import dataaccess.DataAccess;
-import dataaccess.MemoryDataAccess;
 import service.ClearService;
 import dataaccess.DataAccessException;
 
-import java.sql.SQLException;
 import java.util.Map;
 
 import service.GameService;
-import result.ListGamesResult;
 import request.CreateGameRequest;
 import result.CreateGameResult;
 import request.JoinGameRequest;
 
-import dataaccess.DataAccess;
 import dataaccess.MySQLDataAccess;
 
 public class Server {
-
-//    public int run(int desiredPort) {
-//        Spark.port(desiredPort);
-//
-//        Spark.staticFiles.location("web");
-//
-//        // Register your endpoints and handle exceptions here.
-//
-//        //This line initializes the server and can be removed once you have a functioning endpoint
-//        Spark.init();
-//
-//        Spark.awaitInitialization();
-//        return Spark.port();
-//    }
 
     public int run(int desiredPort) {
 
@@ -110,9 +92,6 @@ public class Server {
         Spark.post("/session", (req, res) -> {
             try {
                 LoginRequest request = gson.fromJson(req.body(), LoginRequest.class);
-
-                System.out.println("Parsed LoginRequest: username=" + request.username() + ", password=" + request.password());
-
                 LoginResult result = userService.login(request);
                 res.type("application/json");
                 res.status(200);
@@ -129,8 +108,7 @@ public class Server {
                 } else {
                     res.status(500);
                 }
-                //res.status(e.getMessage().equals("Error: unauthorized") ? 401 : 500);
-                // Always prefix with "Error: "
+                //always prefix with error
                 if (!message.toLowerCase().contains("error")) {
                     message = "Error: " + message;
                 }
@@ -156,9 +134,7 @@ public class Server {
                 } else {
                     res.status(500);
                 }
-                //res.status(401);
-                // Always prefix with "Error: "
-                //return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
+                //always prefix with error
                 if (!message.toLowerCase().contains("error")) {
                     message = "Error: " + message;
                 }
@@ -188,9 +164,7 @@ public class Server {
                     message = "Error: " + message;
                 }
                 return gson.toJson(Map.of("message", message));
-                //res.status(401);
-                // Always prefix with "Error: "
-                //return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
+                //always prefix with error
             } catch (Exception e) {
                 res.status(500);
                 return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
@@ -218,7 +192,7 @@ public class Server {
                 } else {
                     res.status(500);
                 }
-                // Always prefix with "Error: "
+                //always prefix with error
                 if (!message.toLowerCase().contains("error")) {
                     message = "Error: " + message;
                 }
@@ -232,16 +206,8 @@ public class Server {
         //Join game endpoint
         Spark.put("/game", (req, res) -> {
            try {
-               System.out.println("Raw join request: " + req.body());
-
                String authToken = req.headers("authorization");
-
-               System.out.println("Auth token: " + authToken);
-
                JoinGameRequest request = gson.fromJson(req.body(), JoinGameRequest.class);
-
-               System.out.println("Parsed JoinGameRequest: gameID=" + request.gameID() + ", color=" + request.playerColor());
-
                gameService.joinGame(request, authToken);
                res.type("application/json");
                res.status(200);
@@ -260,7 +226,7 @@ public class Server {
                } else {
                    res.status(500);
                }
-               // Always prefix with "Error: "
+               //prefix with error
                if (!message.toLowerCase().contains("error")) {
                    message = "Error: " + message;
                }

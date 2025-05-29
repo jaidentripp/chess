@@ -11,7 +11,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class MySQLDataAccess implements DataAccess {
     private final Gson gson = new Gson();
@@ -50,12 +49,7 @@ public class MySQLDataAccess implements DataAccess {
     //Users
     @Override
     public void insertUser(UserData user) throws DataAccessException {
-        System.out.println("Registering user: " + user.username() + ", password: " + user.password());
-
         String hashedPassword = BCrypt.hashpw(user.password(), BCrypt.gensalt());
-
-        System.out.println("Hashed password: " + hashedPassword);
-
         String sql = "INSERT INTO users (username, password_hash, email) VALUES (?, ?, ?)";
         try (var conn = DatabaseManager.getConnection();
              var ps = conn.prepareStatement(sql)) {
@@ -71,53 +65,8 @@ public class MySQLDataAccess implements DataAccess {
         }
     }
 
-//    @Override
-//    public void registerUser(String username, String password, String email) throws DataAccessException {
-//        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
-//        try (var conn = DatabaseManager.getConnection();
-//             var statement = conn.prepareStatement("INSERT INTO users (username, password_hash, email) VALUES (?, ?, ?)")) {
-//            statement.setString(1, username);
-//            statement.setString(2, hashedPassword);
-//            statement.setString(3, email);
-//            statement.executeUpdate();
-//        } catch (SQLException e) {
-//            if (e.getMessage().contains("Duplicate")) {
-//                throw new DataAccessException("Error: already taken");
-//            }
-//            throw new DataAccessException("Error: " + e.getMessage());
-//        }
-//    }
-
-//    @Override
-//    public boolean verifyUser(String username, String password) throws DataAccessException {
-//        System.out.println("Verifying user: " + username + ", password: " + password);
-//        String sql = "SELECT password_hash FROM users WHERE username = ?";
-//        try(var conn = DatabaseManager.getConnection();
-//            var statement = conn.prepareStatement(sql)) {
-//            statement.setString(1, username);
-//            var rs = statement.executeQuery();
-//                if (rs.next()) {
-//                    String hash = rs.getString("password_hash");
-//
-//                    System.out.println("Found user. Stored hash: " + hash);
-//
-//                    boolean matches = BCrypt.checkpw(password, hash);
-//
-//                    System.out.println("BCrypt password match: " + matches);
-//                    return BCrypt.checkpw(password, hash);
-//                }
-//                System.out.println("User not found!");
-//                return false;
-//        } catch (SQLException e) {
-//            throw new DataAccessException("Error verifying user", e);
-//        }
-//    }
-
     @Override
     public boolean verifyUser(String username, String password) throws DataAccessException {
-        //System.out.println("Verifying user: " + username + ", password: " + password);
-        System.out.println("verifyUser called with: username=" + username + ", password=" + password);
-
         String sql = "SELECT password_hash FROM users WHERE username = ?";
         try(var conn = DatabaseManager.getConnection();
             var statement = conn.prepareStatement(sql)) {
@@ -125,12 +74,9 @@ public class MySQLDataAccess implements DataAccess {
             var rs = statement.executeQuery();
             if (rs.next()) {
                 String hash = rs.getString("password_hash");
-                System.out.println("Found user. Stored hash: " + hash);
                 boolean matches = BCrypt.checkpw(password, hash);
-                System.out.println("BCrypt password match: " + matches);
                 return matches;
             } else {
-                System.out.println("User not found!");
                 return false;
             }
         } catch (SQLException e) {
@@ -297,17 +243,9 @@ public class MySQLDataAccess implements DataAccess {
     public void clear() throws DataAccessException {
         try (var conn = DatabaseManager.getConnection();
              var stmt = conn.createStatement()) {
-            //stmt.execute("SET FOREIGN_KEY_CHECKS = 0");
             stmt.executeUpdate("TRUNCATE TABLE auths");
             stmt.executeUpdate("TRUNCATE TABLE games");
             stmt.executeUpdate("TRUNCATE TABLE users");
-            //stmt.executeUpdate("SET FOREIGN_KEY_CHECKS = 1");
-
-            System.out.println("Database cleared: all tables truncated and auto-increment counters reset.");
-
-            //stmt.executeUpdate("DELETE FROM auths");
-            //stmt.executeUpdate("DELETE FROM games");
-            //stmt.executeUpdate("DELETE FROM users");
         } catch (SQLException e) {
             throw new DataAccessException("Error: " + e.getMessage());
         }

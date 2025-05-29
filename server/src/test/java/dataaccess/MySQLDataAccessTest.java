@@ -1,7 +1,5 @@
 package dataaccess;
 
-import dataaccess.MySQLDataAccess;
-import dataaccess.DataAccessException;
 import model.UserData;
 import model.GameData;
 import model.AuthData;
@@ -21,7 +19,7 @@ public class MySQLDataAccessTest {
         dao.clear(); // Reset DB before each test
     }
 
-    // --- User Tests ---
+    //User tests
 
     @Test
     void insertUser_positive() throws DataAccessException {
@@ -70,7 +68,7 @@ public class MySQLDataAccessTest {
         assertFalse(dao.verifyUser("noUser", "pw"));
     }
 
-    // --- Auth Tests ---
+    //Auth tests
 
     @Test
     void insertAuth_positive() throws DataAccessException {
@@ -110,7 +108,7 @@ public class MySQLDataAccessTest {
         assertDoesNotThrow(() -> dao.deleteAuth("noSuchToken"));
     }
 
-    // --- Game Tests ---
+    //Game tests
 
     @Test
     void insertGame_positive() throws DataAccessException {
@@ -168,7 +166,7 @@ public class MySQLDataAccessTest {
         assertTrue(games.stream().anyMatch(g -> g.gameName().equals("game2")));
     }
 
-    // --- Clear Tests ---
+    //Clear tests
 
     @Test
     void clear_positive() throws DataAccessException {
@@ -178,5 +176,4 @@ public class MySQLDataAccessTest {
         dao.clear();
         assertNull(dao.getUser("userX"));
     }
-
 }

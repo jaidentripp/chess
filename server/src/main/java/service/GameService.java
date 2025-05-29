@@ -21,7 +21,6 @@ public class GameService {
         if (req == null || req.gameName() == null || req.gameName().isBlank()) {
             throw new DataAccessException("Error: bad request");
         }
-        //int gameID = nextGameId++;
 
         GameData game = new GameData( 0, null, null, req.gameName(), new chess.ChessGame());
         int gameID = dao.insertGame(game);
