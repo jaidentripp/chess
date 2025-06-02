@@ -1,17 +1,20 @@
 package client;
 
 import com.google.gson.Gson;
+import model.GameData;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
 import result.CreateGameResult;
+import result.ListGamesResult;
 import result.LoginResult;
 import result.RegisterResult;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 
 public class ServerFacade {
@@ -20,6 +23,55 @@ public class ServerFacade {
 
     public ServerFacade(String serverUrl) {
         this.serverUrl = serverUrl;
+    }
+
+    public RegisterResult register(String username, String password, String email) throws IOException {
+        RegisterRequest req = new RegisterRequest(username, password, email);
+        String json = gson.toJson(req);
+        String response = post("/user", json, null);
+        return gson.fromJson(response, RegisterResult.class);
+    }
+
+    public LoginResult login(String username, String password) throws IOException {
+        LoginRequest req = new LoginRequest(username, password);
+        String json = gson.toJson(req);
+        String response = post("/session", json, null);
+        return gson.fromJson(response, LoginResult.class);
+    }
+
+    public void logout(String authToken) throws IOException {
+        delete("/session", authToken);
+    }
+
+    public List<GameData> listGames(String authToken) throws IOException {
+        String response = get("/game", authToken);
+        ListGamesResult result = gson.fromJson(response, ListGamesResult.class);
+        return result.games();
+    }
+
+    public CreateGameResult createGame(String authToken, String gameName) throws IOException {
+        CreateGameRequest req = new CreateGameRequest(gameName);
+        String json = gson.toJson(req);
+        String response = post("/game", json, authToken);
+        return gson.fromJson(response, CreateGameResult.class);
+    }
+
+    public void joinGame(String authToken, int gameID, String color) throws IOException {
+        JoinGameRequest req = new JoinGameRequest(color, gameID);
+        String json = gson.toJson(req);
+        put("/game", json, authToken);
+    }
+
+    //http helper methods
+
+    private String get(String path, String authToken) throws IOException {
+        URL url = new URL(serverUrl + path);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        if (authToken != null) {
+            conn.setRequestProperty("authorization", authToken);
+        }
+        return readResponse(conn);
     }
 
     private String post(String path, String body, String authToken) throws IOException {
