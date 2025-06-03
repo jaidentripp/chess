@@ -176,10 +176,10 @@ public class ChessClient {
                 System.out.println("No games listed. Use 'list games' first.");
                 return;
             }
-            System.out.print("Enter game ID: ");
+            System.out.print("Enter game number: ");
             int gameID = Integer.parseInt(scanner.nextLine().trim());
             if (gameID < 1 || gameID > lastListedGames.size()) {
-                System.out.println("Invalid game ID.");
+                System.out.println("Invalid game number.");
                 return;
             }
             GameData gameData = lastListedGames.get(gameID - 1);
@@ -206,7 +206,7 @@ public class ChessClient {
                 System.out.println("No games listed. Use 'list games' first.");
                 return;
             }
-            System.out.print("Enter game ID: ");
+            System.out.print("Enter game number: ");
             int gameID = Integer.parseInt(scanner.nextLine().trim());
             if (gameID < 1 || gameID > lastListedGames.size()) {
                 System.out.println("Invalid game number.");
