@@ -5,6 +5,7 @@ import model.GameData;
 import result.CreateGameResult;
 import result.LoginResult;
 import result.RegisterResult;
+import ui.ChessBoardPrinter;
 
 import java.util.ArrayList;
 import java.util.List;
