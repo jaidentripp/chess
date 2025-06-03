@@ -23,7 +23,7 @@ public class ChessClient {
     }
 
     public void run() {
-        System.out.println("Welcome to 240 Chess Client");
+        //System.out.println("Welcome to 240 Chess Client");
         while (true) {
             if (authToken == null) {
                 preLoginMenu();
@@ -192,6 +192,7 @@ public class ChessClient {
             server.joinGame(authToken, gameData.gameID(), color);
             System.out.println("Joined game as " + color + "!");
             //Draw board
+            ChessBoardPrinter.printBoard(gameData.game().getBoard(), color.equals("white"));
         } catch (NumberFormatException e) {
             System.out.println("Invalid input (not a number).");
         } catch (Exception e) {
@@ -214,6 +215,7 @@ public class ChessClient {
             GameData gameData = lastListedGames.get(gameID - 1);
             System.out.println("Observing game...");
             //print board with white observer perspective
+            ChessBoardPrinter.printBoard(gameData.game().getBoard(), true);
         } catch (NumberFormatException e) {
             System.out.println("Invalid input (not a number).");
         } catch (Exception e) {
