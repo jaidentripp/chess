@@ -49,7 +49,7 @@ public class ChessClient {
     }
 
     private void postLoginMenu() {
-        System.out.print("/n[PostLogin] Enter command (help/logout/create game/list games/play game/observe game): ");
+        System.out.print("[PostLogin] Enter command (help/logout/create game/list games/play game/observe game): ");
         String command = scanner.nextLine().trim().toLowerCase();
         switch (command) {
             case "help" -> printPostLoginHelp();
