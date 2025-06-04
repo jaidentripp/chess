@@ -1,9 +1,10 @@
 package client;
 
+import chess.ChessBoard;
 import model.GameData;
-import result.CreateGameResult;
-import result.LoginResult;
-import result.RegisterResult;
+import client.CreateGameResult;
+import client.LoginResult;
+import client.RegisterResult;
 import ui.ChessBoardPrinter;
 
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ public class ChessClient {
     private final ServerFacade server;
     private String authToken = null;
     private String username = null;
-    private List<GameData> lastListedGames = new ArrayList<>();
+    private List<GameInfo> lastListedGames = new ArrayList<>();
 
     public ChessClient(String serverUrl) {
         this.server = new ServerFacade(serverUrl);
@@ -158,7 +159,7 @@ public class ChessClient {
             } else {
                 System.out.println("Games:");
                 int index = 1;
-                for (GameData gameData : lastListedGames) {
+                for (GameInfo gameData : lastListedGames) {
                     String white = gameData.whiteUsername() != null ? gameData.whiteUsername() : "(empty)";
                     String black = gameData.blackUsername() != null ? gameData.blackUsername() : "(empty)";
                     System.out.printf("  %d.  \"%s\" | White: %s | Black: %s%n", index++, gameData.gameName(), white, black);
@@ -181,7 +182,7 @@ public class ChessClient {
                 System.out.println("Invalid game number.");
                 return;
             }
-            GameData gameData = lastListedGames.get(gameID - 1);
+            GameInfo gameData = lastListedGames.get(gameID - 1);
             System.out.print("Enter color (white/black): ");
             String color = scanner.nextLine().trim().toLowerCase();
             if (!color.equals("white") && !color.equals("black")) {
@@ -191,7 +192,8 @@ public class ChessClient {
             server.joinGame(authToken, gameData.gameID(), color);
             System.out.println("Joined game as " + color + "!");
             //Draw board
-            ChessBoardPrinter.printBoard(gameData.game().getBoard(), color.equals("white"));
+            ChessBoard board = new ChessBoard();
+            ChessBoardPrinter.printBoard(board, color.equals("white"));
         } catch (NumberFormatException e) {
             System.out.println("Invalid input (not a number).");
         } catch (Exception e) {
@@ -211,10 +213,11 @@ public class ChessClient {
                 System.out.println("Invalid game number.");
                 return;
             }
-            GameData gameData = lastListedGames.get(gameID - 1);
+            GameInfo gameData = lastListedGames.get(gameID - 1);
             System.out.println("Observing game...");
             //print board with white observer perspective
-            ChessBoardPrinter.printBoard(gameData.game().getBoard(), true);
+            ChessBoard board = new ChessBoard();
+            ChessBoardPrinter.printBoard(board, true);
         } catch (NumberFormatException e) {
             System.out.println("Invalid input (not a number).");
         } catch (Exception e) {

@@ -2,14 +2,14 @@ package client;
 
 import com.google.gson.Gson;
 import model.GameData;
-import request.CreateGameRequest;
-import request.JoinGameRequest;
-import request.LoginRequest;
-import request.RegisterRequest;
-import result.CreateGameResult;
-import result.ListGamesResult;
-import result.LoginResult;
-import result.RegisterResult;
+import client.CreateGameRequest;
+import client.JoinGameRequest;
+import client.LoginRequest;
+import client.RegisterRequest;
+import client.CreateGameResult;
+import client.ListGamesResult;
+import client.LoginResult;
+import client.RegisterResult;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -43,7 +43,7 @@ public class ServerFacade {
         delete("/session", authToken);
     }
 
-    public List<GameData> listGames(String authToken) throws IOException {
+    public List<GameInfo> listGames(String authToken) throws IOException {
         String response = get("/game", authToken);
         ListGamesResult result = gson.fromJson(response, ListGamesResult.class);
         return result.games();
@@ -57,7 +57,7 @@ public class ServerFacade {
     }
 
     public void joinGame(String authToken, int gameID, String color) throws IOException {
-        JoinGameRequest req = new JoinGameRequest(color, gameID);
+        JoinGameRequest req = new JoinGameRequest(gameID, color);
         String json = gson.toJson(req);
         put("/game", json, authToken);
     }
