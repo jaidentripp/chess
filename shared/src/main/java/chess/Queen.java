@@ -25,13 +25,13 @@ public class Queen {
         return moves;
     }
 
-    private void shift(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves, int c_direction, int r_direction) {
+    private void shift(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves, int cDirection, int rDirection) {
         int c = myPosition.getColumn();
         int r = myPosition.getRow();
 
         while (true) {
-            c += c_direction;
-            r += r_direction;
+            c += cDirection;
+            r += rDirection;
             if (c > 0 && c < 9 && r > 0 && r < 9) {
                 ChessPosition pos = new ChessPosition(r, c);
                 if (board.getPiece(pos) == null) {
@@ -47,29 +47,5 @@ public class Queen {
             }
         }
     }
-//    private void shift(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves, int c_direction, int r_direction) {
-//        int c = myPosition.getColumn();
-//        int r = myPosition.getRow();
-//
-//        while(true) {
-//            c += c_direction;
-//            r += r_direction;
-//            if (c <= 0 || c >= 9 || r <= 0 || r >= 9) {
-//                return;
-//            }
-//
-//            ChessPosition pos = new ChessPosition(r, c);
-//            if (board.getPiece(pos) != null) {
-//                if (board.getPiece(pos).getTeamColor() != this.color) {
-//                    moves.add(new ChessMove((ChessPosition) myPosition, pos, (ChessPiece.PieceType)null));
-//                    return;
-//                }
-//
-//                return;
-//            }
-//
-//            moves.add(new ChessMove((ChessPosition) myPosition, pos, (ChessPiece.PieceType)null));
-//        }
-//    }
 }
 

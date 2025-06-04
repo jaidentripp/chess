@@ -26,9 +26,9 @@ public class King {
         return moves;
     }
 
-    private void shift(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves, int c_direction, int r_direction) {
-        int c = myPosition.getColumn() + c_direction;
-        int r = myPosition.getRow() + r_direction;
+    private void shift(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves, int cDirection, int rDirection) {
+        int c = myPosition.getColumn() + cDirection;
+        int r = myPosition.getRow() + rDirection;
         if (c > 0 && c < 9 && r > 0 && r < 9) {
             ChessPosition pos = new ChessPosition(r, c);
             if (board.getPiece(pos) == null) {

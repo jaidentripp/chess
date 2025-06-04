@@ -31,11 +31,6 @@ public class ServerFacadeTests {
     }
 
 
-//    @Test
-//    public void sampleTest() {
-//        Assertions.assertTrue(true);
-//    }
-
     @BeforeEach
     void clearDatabase() throws IOException {
         // Clear database before each test

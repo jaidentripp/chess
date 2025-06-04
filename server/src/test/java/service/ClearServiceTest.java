@@ -1,6 +1,5 @@
 package service;
 
-import dataaccess.*;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
@@ -10,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ClearServiceTest {
     @Test
-    public void testClear_Positive() throws DataAccessException {
+    public void testClearPositive() throws DataAccessException {
         DataAccess dao = new MemoryDataAccess();
         dao.insertUser(new model.UserData("user", "pass", "email"));
         assertNotNull(dao.getUser("user"));

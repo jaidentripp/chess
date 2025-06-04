@@ -25,7 +25,7 @@ public class GameServiceTest {
 
     //Create game
     @Test
-    public void testCreateGame_Positive() throws DataAccessException {
+    public void testCreateGamePositive() throws DataAccessException {
         CreateGameRequest request = new CreateGameRequest("MyGame");
         CreateGameResult result = gameService.createGameResult(request, authToken);
         assertTrue(result.gameID() > 0);
@@ -33,14 +33,14 @@ public class GameServiceTest {
     }
 
     @Test
-    public void testCreateGame_Negative_BadRequest() {
+    public void testCreateGameNegativeBadRequest() {
         DataAccessException exception = assertThrows(DataAccessException.class, () -> gameService.createGameResult(new CreateGameRequest(""), authToken));
         assertEquals("Error: bad request", exception.getMessage());
     }
 
     //list game
     @Test
-    public void testListGames_Positive() throws DataAccessException {
+    public void testListGamesPositive() throws DataAccessException {
         CreateGameResult result = gameService.createGameResult(new CreateGameRequest("Game1"), authToken);
         ListGamesResult listGamesResult = gameService.listGames(authToken);
         assertFalse(listGamesResult.games().isEmpty());
@@ -48,14 +48,14 @@ public class GameServiceTest {
     }
 
     @Test
-    public void testListGames_Negative_Unauthorized() {
+    public void testListGamesNegativeUnauthorized() {
         DataAccessException exception = assertThrows(DataAccessException.class, () -> gameService.listGames("badtoken"));
         assertEquals("Error: unauthorized", exception.getMessage());
     }
 
     //join game
     @Test
-    public void testJoinGame_Positive() throws DataAccessException {
+    public void testJoinGamePositive() throws DataAccessException {
         CreateGameResult result = gameService.createGameResult(new CreateGameRequest("Game1"), authToken);
         JoinGameRequest joinGameRequest = new JoinGameRequest("BLACK", result.gameID());
         gameService.joinGame(joinGameRequest, authToken);
@@ -64,7 +64,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void testJoinGame_Negative_AlreadyTaken() throws DataAccessException {
+    public void testJoinGameNegativeAlreadyTaken() throws DataAccessException {
         CreateGameResult result = gameService.createGameResult(new CreateGameRequest("Game1"), authToken);
         JoinGameRequest joinGameRequest = new JoinGameRequest("BLACK", result.gameID());
         gameService.joinGame(joinGameRequest, authToken);

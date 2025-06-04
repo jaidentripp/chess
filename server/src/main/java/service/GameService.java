@@ -22,7 +22,8 @@ public class GameService {
             throw new DataAccessException("Error: bad request");
         }
 
-        GameData game = new GameData( 0, null, null, req.gameName(), new chess.ChessGame());
+        GameData game = new GameData( 0, null, null, req.gameName(),
+                new chess.ChessGame());
         int gameID = dao.insertGame(game);
         return new CreateGameResult(gameID);
     }

@@ -22,7 +22,7 @@ public class MySQLDataAccessTest {
     //User tests
 
     @Test
-    void insertUser_positive() throws DataAccessException {
+    void insertUserPositive() throws DataAccessException {
         UserData user = new UserData("user1", "password", "user1@email.com");
         dao.insertUser(user);
 
@@ -35,7 +35,7 @@ public class MySQLDataAccessTest {
     }
 
     @Test
-    void insertUser_negative_duplicate() throws DataAccessException {
+    void insertUserNegativeDuplicate() throws DataAccessException {
         UserData user = new UserData("user1", "password", "user1@email.com");
         dao.insertUser(user);
         DataAccessException ex = assertThrows(DataAccessException.class, () -> {
@@ -45,33 +45,33 @@ public class MySQLDataAccessTest {
     }
 
     @Test
-    void getUser_negative_notFound() throws DataAccessException {
+    void getUserNegativeNotFound() throws DataAccessException {
         assertNull(dao.getUser("noSuchUser"));
     }
 
     @Test
-    void verifyUser_positive() throws DataAccessException {
+    void verifyUserPositive() throws DataAccessException {
         UserData user = new UserData("user2", "secret", "user2@email.com");
         dao.insertUser(user);
         assertTrue(dao.verifyUser("user2", "secret"));
     }
 
     @Test
-    void verifyUser_negative_wrongPassword() throws DataAccessException {
+    void verifyUserNegativeWrongPassword() throws DataAccessException {
         UserData user = new UserData("user3", "secret", "user3@email.com");
         dao.insertUser(user);
         assertFalse(dao.verifyUser("user3", "wrongpassword"));
     }
 
     @Test
-    void verifyUser_negative_noSuchUser() throws DataAccessException {
+    void verifyUserNegativeNoSuchUser() throws DataAccessException {
         assertFalse(dao.verifyUser("noUser", "pw"));
     }
 
     //Auth tests
 
     @Test
-    void insertAuth_positive() throws DataAccessException {
+    void insertAuthPositive() throws DataAccessException {
         AuthData auth = new AuthData("token1", "user1");
         dao.insertAuth(auth);
         AuthData fromDb = dao.getAuth("token1");
@@ -80,7 +80,7 @@ public class MySQLDataAccessTest {
     }
 
     @Test
-    void insertAuth_negative_duplicate() throws DataAccessException {
+    void insertAuthNegativeDuplicate() throws DataAccessException {
         AuthData auth = new AuthData("token2", "user2");
         dao.insertAuth(auth);
         DataAccessException ex = assertThrows(DataAccessException.class, () -> {
@@ -90,12 +90,12 @@ public class MySQLDataAccessTest {
     }
 
     @Test
-    void getAuth_negative_notFound() throws DataAccessException {
+    void getAuthNegativeNotFound() throws DataAccessException {
         assertNull(dao.getAuth("noToken"));
     }
 
     @Test
-    void deleteAuth_positive() throws DataAccessException {
+    void deleteAuthPositive() throws DataAccessException {
         AuthData auth = new AuthData("token3", "user3");
         dao.insertAuth(auth);
         dao.deleteAuth("token3");
@@ -103,15 +103,15 @@ public class MySQLDataAccessTest {
     }
 
     @Test
-    void deleteAuth_negative_notFound() throws DataAccessException {
-        // Should not throw, but nothing to delete
+    void deleteAuthNegativeNotFound() throws DataAccessException {
+        //Should not throw, but nothing to delete
         assertDoesNotThrow(() -> dao.deleteAuth("noSuchToken"));
     }
 
     //Game tests
 
     @Test
-    void insertGame_positive() throws DataAccessException {
+    void insertGamePositive() throws DataAccessException {
         ChessGame game = new ChessGame();
         GameData gameData = new GameData(0, "white", "black", "testGame", game);
         int gameId = dao.insertGame(gameData);
@@ -122,19 +122,19 @@ public class MySQLDataAccessTest {
     }
 
     @Test
-    void insertGame_negative_nullName() {
+    void insertGameNegativeNullName() {
         ChessGame game = new ChessGame();
         GameData gameData = new GameData(0, "white", "black", null, game);
         assertThrows(DataAccessException.class, () -> dao.insertGame(gameData));
     }
 
     @Test
-    void getGame_negative_notFound() throws DataAccessException {
+    void getGameNegativeNotFound() throws DataAccessException {
         assertNull(dao.getGame(9999));
     }
 
     @Test
-    void updateGame_positive() throws DataAccessException {
+    void updateGamePositive() throws DataAccessException {
         ChessGame game = new ChessGame();
         GameData gameData = new GameData(0, "white", "black", "gameName", game);
         int gameId = dao.insertGame(gameData);
@@ -147,14 +147,14 @@ public class MySQLDataAccessTest {
     }
 
     @Test
-    void updateGame_negative_notFound() {
+    void updateGameNegativeNotFound() {
         ChessGame game = new ChessGame();
         GameData gameData = new GameData(12345, "white", "black", "gameName", game);
         assertThrows(DataAccessException.class, () -> dao.updateGame(gameData));
     }
 
     @Test
-    void listGames_positive() throws DataAccessException {
+    void listGamesPositive() throws DataAccessException {
         ChessGame game = new ChessGame();
         GameData gameData1 = new GameData(0, "white", "black", "game1", game);
         GameData gameData2 = new GameData(0, "white", "black", "game2", game);
@@ -169,7 +169,7 @@ public class MySQLDataAccessTest {
     //Clear tests
 
     @Test
-    void clear_positive() throws DataAccessException {
+    void clearPositive() throws DataAccessException {
         UserData user = new UserData("userX", "pw", "userX@email.com");
         dao.insertUser(user);
         assertNotNull(dao.getUser("userX"));

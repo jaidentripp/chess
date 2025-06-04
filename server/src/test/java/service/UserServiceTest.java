@@ -19,7 +19,7 @@ public class UserServiceTest {
 
     //Register
     @Test
-    public void testRegister_Positive() throws DataAccessException {
+    public void testRegisterPositive() throws DataAccessException {
         RegisterRequest request = new RegisterRequest("user", "pass", "email");
         RegisterResult result = userService.register(request);
         assertEquals("user", result.username());
@@ -28,7 +28,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testRegister_Negative_AlreadyTaken() throws DataAccessException {
+    public void testRegisterNegativeAlreadyTaken() throws DataAccessException {
         RegisterRequest request = new RegisterRequest("user", "pass", "email");
         userService.register(request);
         DataAccessException exception = assertThrows(DataAccessException.class, () -> userService.register(request));
@@ -37,7 +37,7 @@ public class UserServiceTest {
 
     //Login
     @Test
-    public void testLogin_Positive() throws DataAccessException {
+    public void testLoginPositive() throws DataAccessException {
         RegisterRequest request = new RegisterRequest("user", "pass", "email");
         userService.register(request);
         LoginRequest loginRequest = new LoginRequest("user", "pass");
@@ -47,7 +47,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testLogin_Negative_BadPassword() throws DataAccessException {
+    public void testLoginNegativeBadPassword() throws DataAccessException {
         RegisterRequest request = new RegisterRequest("user", "pass", "email");
         userService.register(request);
         LoginRequest loginRequest = new LoginRequest("user", "wrongpass");
@@ -57,7 +57,7 @@ public class UserServiceTest {
 
     //Logout
     @Test
-    public void testLogout_Positive() throws DataAccessException {
+    public void testLogoutPositive() throws DataAccessException {
         RegisterRequest request = new RegisterRequest("user", "pass", "email");
         RegisterResult result = userService.register(request);
         userService.logout(result.authToken());
@@ -65,7 +65,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testLogout_Negative_InvalidToken() {
+    public void testLogoutNegativeInvalidToken() {
         DataAccessException exception = assertThrows(DataAccessException.class, () -> userService.logout("badtoken"));
         assertEquals("Error: unauthorized", exception.getMessage());
     }

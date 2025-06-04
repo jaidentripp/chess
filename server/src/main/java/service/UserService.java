@@ -14,7 +14,8 @@ public class UserService {
 
     public RegisterResult register(RegisterRequest req) throws DataAccessException {
         //valid input
-        if (req == null || req.username() == null || req.password() == null || req.email() == null || req.username().isBlank() || req.password().isBlank() || req.email().isBlank()) {
+        if (req == null || req.username() == null || req.password() == null || req.email() == null ||
+                req.username().isBlank() || req.password().isBlank() || req.email().isBlank()) {
             throw new DataAccessException("Error: bad request");
         }
         //check if user already exists
@@ -33,33 +34,6 @@ public class UserService {
 
         return new RegisterResult(req.username(), authToken);
     }
-
-//    public LoginResult login(LoginRequest req) throws DataAccessException {
-//        System.out.println("UserService.login called with: username=" + req.username() + ", password=" + req.password());
-//
-//        if (req == null || req.username() == null || req.password() == null || req.username().isBlank() || req.password().isBlank()) {
-//            throw new DataAccessException("Error: bad request");
-//        }
-//        UserData user = dao.getUser(req.username());
-//        if (user == null || !user.password().equals(req.password())) {
-//        //if (user == null || !BCrypt.checkpw(req.password(), user.password())) {
-//            throw new DataAccessException("Error: unauthorized");
-//        }
-//
-////        boolean isValid = dao.verifyUser(req.username(), req.password());
-////        if (!isValid) {
-////            throw new DataAccessException("Error: unauthorized");
-////        }
-//
-//        //generate new auth token
-//        String authToken = UUID.randomUUID().toString();
-//        AuthData auth = new AuthData(authToken, req.username());
-//        dao.insertAuth(auth);
-//        return new LoginResult(req.username(), authToken);
-////        String authToken = UUID.randomUUID().toString();
-////        dao.insertAuth(new AuthData(authToken, req.username()));
-////        return new LoginResult(req.username(), authToken);
-//    }
 
     public LoginResult login(LoginRequest req) throws DataAccessException {
         System.out.println("UserService.login called with: username=" + req.username() + ", password=" + req.password());

@@ -60,9 +60,6 @@ public class ChessGame {
         if (piece == null) {
             return null;
         }
-//        if (piece.getTeamColor() != currentTurn) {
-//            return new ArrayList<>();
-//        }
 
         Collection<ChessMove> allMoves = piece.pieceMoves(board, startPosition);
         Collection<ChessMove> validMoves = new ArrayList<>();

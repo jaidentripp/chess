@@ -22,22 +22,9 @@ public class Bishop {
         return moves;
     }
 
-//    private void shift(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves, int c_direction, int r_direction) {
-//        int c = myPosition.getColumn() + c_direction;
-//        int r = myPosition.getRow() + r_direction;
-//        if (c >= 1 && c <= 8 && r >= 1 && r <= 8) {
-//            ChessPosition pos = new ChessPosition(r, c);
-//            if (board.getPiece(pos) == null) {
-//                moves.add(new ChessMove((ChessPosition) myPosition, pos, (ChessPiece.PieceType)null));
-//            } else if (board.getPiece(pos).getTeamColor() != this.color) {
-//                moves.add(new ChessMove((ChessPosition) myPosition, pos, (ChessPiece.PieceType)null));
-//            }
-//        }
-//    }
-
-    private void shift(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves, int c_direction, int r_direction) {
-        int c = myPosition.getColumn() + c_direction;
-        int r = myPosition.getRow() + r_direction;
+    private void shift(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves, int cDirection, int rDirection) {
+        int c = myPosition.getColumn() + cDirection;
+        int r = myPosition.getRow() + rDirection;
 
         // Continue moving in the direction until we hit the edge or a piece
         while (c >= 1 && c <= 8 && r >= 1 && r <= 8) {
@@ -58,8 +45,8 @@ public class Bishop {
             }
 
             // Move further in the same direction
-            c += c_direction;
-            r += r_direction;
+            c += cDirection;
+            r += rDirection;
         }
     }
 
