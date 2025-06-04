@@ -37,7 +37,6 @@ public class Server {
             dao = new MySQLDataAccess();
         } catch (DataAccessException e) {
             System.err.println("Fatal error initializing database: " + e.getMessage());
-            e.printStackTrace();
             throw new RuntimeException("Failed to initialize database", e);
         }
         //DataAccess dao = new MemoryDataAccess();
@@ -100,19 +99,7 @@ public class Server {
                 res.status(400);
                 return gson.toJson(Map.of("message", "Error: bad request"));
             } catch (DataAccessException e) {
-                String message = e.getMessage();
-                if ("Error: bad request".equals(message)) {
-                    res.status(400);
-                } else if ("Error: unauthorized".equals(message)) {
-                    res.status(401);
-                } else {
-                    res.status(500);
-                }
-                //always prefix with error
-                if (!message.toLowerCase().contains("error")) {
-                    message = "Error: " + message;
-                }
-                return gson.toJson(Map.of("message", message));
+                return errorMessageLogic(e, res, gson);
             } catch (Exception e) {
                 res.status(500);
                 return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
@@ -128,17 +115,7 @@ public class Server {
                 res.type("application/json");
                 return "{}";
             } catch (DataAccessException e) {
-                String message = e.getMessage();
-                if ("Error: unauthorized".equals(message)) {
-                    res.status(401);
-                } else {
-                    res.status(500);
-                }
-                //always prefix with error
-                if (!message.toLowerCase().contains("error")) {
-                    message = "Error: " + message;
-                }
-                return gson.toJson(Map.of("message", message));
+                return errorMessage401And500Logic(e, res, gson);
             } catch (Exception e) {
                 res.status(500);
                 return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
@@ -154,17 +131,7 @@ public class Server {
                 res.status(200);
                 return gson.toJson(result);
             } catch (DataAccessException e) {
-                String message = e.getMessage();
-                if ("Error: unauthorized".equals(message)) {
-                    res.status(401);
-                } else {
-                    res.status(500);
-                }
-                if (!message.toLowerCase().contains("error")) {
-                    message = "Error: " + message;
-                }
-                return gson.toJson(Map.of("message", message));
-                //always prefix with error
+                return errorMessage401And500Logic(e, res, gson);
             } catch (Exception e) {
                 res.status(500);
                 return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
@@ -244,5 +211,35 @@ public class Server {
     public void stop() {
         Spark.stop();
         Spark.awaitStop();
+    }
+
+    private String errorMessageLogic(Exception e, spark.Response res, Gson gson) {
+        String message = e.getMessage();
+        if ("Error: bad request".equals(message)) {
+            res.status(400);
+        } else if ("Error: unauthorized".equals(message)) {
+            res.status(401);
+        } else {
+            res.status(500);
+        }
+        // Always prefix with "Error:" if not already present
+        if (message == null || !message.toLowerCase().contains("error")) {
+            message = "Error: " + message;
+        }
+        return gson.toJson(Map.of("message", message));
+    }
+
+    private String errorMessage401And500Logic(Exception e, spark.Response res, Gson gson) {
+        String message = e.getMessage();
+        if ("Error: unauthorized".equals(message)) {
+            res.status(401);
+        } else {
+            res.status(500);
+        }
+        // Always prefix with "Error:" if not already present
+        if (message == null || !message.toLowerCase().contains("error")) {
+            message = "Error: " + message;
+        }
+        return gson.toJson(Map.of("message", message));
     }
 }

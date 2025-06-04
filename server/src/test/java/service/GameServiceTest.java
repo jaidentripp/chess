@@ -19,7 +19,8 @@ public class GameServiceTest {
         dao = new MemoryDataAccess();
         userService = new UserService(dao);
         gameService = new GameService(dao);
-        RegisterResult registerResult = userService.register(new RegisterRequest("user", "pass", "email"));
+        RegisterResult registerResult = userService.register(new RegisterRequest("user", "pass",
+                "email"));
         authToken = registerResult.authToken();
     }
 
@@ -34,7 +35,8 @@ public class GameServiceTest {
 
     @Test
     public void testCreateGameNegativeBadRequest() {
-        DataAccessException exception = assertThrows(DataAccessException.class, () -> gameService.createGameResult(new CreateGameRequest(""), authToken));
+        DataAccessException exception = assertThrows(DataAccessException.class, () ->
+                gameService.createGameResult(new CreateGameRequest(""), authToken));
         assertEquals("Error: bad request", exception.getMessage());
     }
 
@@ -49,7 +51,8 @@ public class GameServiceTest {
 
     @Test
     public void testListGamesNegativeUnauthorized() {
-        DataAccessException exception = assertThrows(DataAccessException.class, () -> gameService.listGames("badtoken"));
+        DataAccessException exception = assertThrows(DataAccessException.class, () ->
+                gameService.listGames("badtoken"));
         assertEquals("Error: unauthorized", exception.getMessage());
     }
 
@@ -69,9 +72,11 @@ public class GameServiceTest {
         JoinGameRequest joinGameRequest = new JoinGameRequest("BLACK", result.gameID());
         gameService.joinGame(joinGameRequest, authToken);
         //register another user and try to claim black again
-        RegisterResult result2 = userService.register(new RegisterRequest("user2", "pass2", "email2"));
+        RegisterResult result2 = userService.register(new RegisterRequest("user2", "pass2",
+                "email2"));
         JoinGameRequest joinGameRequest2 = new JoinGameRequest("BLACK", result.gameID());
-        DataAccessException exception = assertThrows(DataAccessException.class, () -> gameService.joinGame(joinGameRequest2, result2.authToken()));
+        DataAccessException exception = assertThrows(DataAccessException.class, () ->
+                gameService.joinGame(joinGameRequest2, result2.authToken()));
         assertEquals("Error: already taken", exception.getMessage());
     }
 }
