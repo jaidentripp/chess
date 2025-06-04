@@ -1,7 +1,7 @@
 package client;
 
 import com.google.gson.Gson;
-import model.GameData;
+import client.GameInfo;
 import client.CreateGameRequest;
 import client.JoinGameRequest;
 import client.LoginRequest;

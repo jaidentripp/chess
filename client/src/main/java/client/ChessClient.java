@@ -193,6 +193,7 @@ public class ChessClient {
             System.out.println("Joined game as " + color + "!");
             //Draw board
             ChessBoard board = new ChessBoard();
+            board.resetBoard();
             ChessBoardPrinter.printBoard(board, color.equals("white"));
         } catch (NumberFormatException e) {
             System.out.println("Invalid input (not a number).");
@@ -217,6 +218,7 @@ public class ChessClient {
             System.out.println("Observing game...");
             //print board with white observer perspective
             ChessBoard board = new ChessBoard();
+            board.resetBoard();
             ChessBoardPrinter.printBoard(board, true);
         } catch (NumberFormatException e) {
             System.out.println("Invalid input (not a number).");
