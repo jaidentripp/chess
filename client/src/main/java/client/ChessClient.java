@@ -1,6 +1,5 @@
 package client;
 
-import client.ServerFacade;
 import model.GameData;
 import result.CreateGameResult;
 import result.LoginResult;
@@ -34,7 +33,7 @@ public class ChessClient {
     }
 
     private void preLoginMenu() {
-        System.out.println("\n[PreLogin] Enter command (help/register/login/quit: ");
+        System.out.println("\n[PreLogin] Enter command (help/register/login/quit): ");
         String command = scanner.nextLine().trim().toLowerCase();
         switch (command) {
             case "help" -> printPreLoginHelp();
