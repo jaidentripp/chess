@@ -26,7 +26,10 @@ public class ChessBoardPrinter {
             for (int colIndex = 0; colIndex < 8; colIndex++) {
                 boolean isLight = ((row + colIndex) % 2 == 0);
                 String bg = isLight ? EscapeSequences.SET_BG_COLOR_LIGHT_GREY : EscapeSequences.SET_BG_COLOR_DARK_GREY;
-                ChessPiece piece = board.getPiece(new ChessPosition(getBoardRow(row, whitePerspective), getBoardCol(colIndex, whitePerspective)));
+                //ChessPiece piece = board.getPiece(new ChessPosition(getBoardRow(row, whitePerspective), getBoardCol(colIndex, whitePerspective)));
+                int boardRow = row;
+                int boardCol = whitePerspective ? colIndex + 1 : 8 - colIndex;
+                ChessPiece piece = board.getPiece(new ChessPosition(boardRow, boardCol));
                 String symbol = pieceToSymbol(piece);
                 System.out.print(bg + symbol + EscapeSequences.RESET_BG_COLOR);
             }
