@@ -47,10 +47,10 @@ public class ServerFacadeTests {
 
     @Test
     void registerNegative() {
-        Exception ex = assertThrows(IOException.class, () -> {
+        Exception e = assertThrows(IOException.class, () -> {
             serverFacade.register("", "pass1", "email@test.com");
         });
-        assertTrue(ex.getMessage().contains("bad request"));
+        assertTrue(e.getMessage().contains("bad request"));
     }
 
     @Test
@@ -62,10 +62,10 @@ public class ServerFacadeTests {
 
     @Test
     void loginNegative() {
-        Exception ex = assertThrows(IOException.class, () -> {
+        Exception e = assertThrows(IOException.class, () -> {
             serverFacade.login("nonexistent", "wrongpass");
         });
-        assertTrue(ex.getMessage().contains("unauthorized"));
+        assertTrue(e.getMessage().contains("unauthorized"));
     }
 
     @Test
@@ -76,9 +76,64 @@ public class ServerFacadeTests {
 
     @Test
     void logoutNegative() {
-        Exception ex = assertThrows(IOException.class, () -> {
+        Exception e = assertThrows(IOException.class, () -> {
             serverFacade.logout("invalid_token");
         });
-        assertTrue(ex.getMessage().contains("unauthorized"));
+        assertTrue(e.getMessage().contains("unauthorized"));
+    }
+
+    @Test
+    void createGamePositive() throws Exception {
+        var auth = serverFacade.register("user1", "pass1", "email@test.com");
+        var result = serverFacade.createGame(auth.authToken(), "testGame");
+        assertTrue(result.gameID() > 0);
+    }
+
+    @Test
+    void createGameNegative() {
+        Exception e = assertThrows(IOException.class, () -> {
+            serverFacade.createGame("invalid_token", "testGame");
+        });
+        assertTrue(e.getMessage().contains("unauthorized"));
+    }
+
+    @Test
+    void listGamesPositive() throws Exception {
+        var auth = serverFacade.register("user1", "pass1", "email@test.com");
+        serverFacade.createGame(auth.authToken(), "game1");
+        serverFacade.createGame(auth.authToken(), "game2");
+
+        var games = serverFacade.listGames(auth.authToken());
+        assertEquals(2, games.size());
+        assertEquals("game1", games.get(0).gameName());
+    }
+
+    @Test
+    void listGamesNegative() {
+        Exception e = assertThrows(IOException.class, () -> {
+            serverFacade.listGames("invalid_token");
+        });
+        assertTrue(e.getMessage().contains("unauthorized"));
+    }
+
+    @Test
+    void joinGamePositive() throws Exception {
+        var auth = serverFacade.register("user1", "pass1", "email@test.com");
+        var game = serverFacade.createGame(auth.authToken(), "testGame");
+
+        assertDoesNotThrow(() ->
+                serverFacade.joinGame(auth.authToken(), game.gameID(), "WHITE")
+        );
+    }
+
+    @Test
+    void joinGameNegative() throws Exception {
+        var auth = serverFacade.register("user1", "pass1", "email@test.com");
+        var game = serverFacade.createGame(auth.authToken(), "testGame");
+
+        Exception e = assertThrows(IOException.class, () -> {
+            serverFacade.joinGame(auth.authToken(), 9999, "WHITE");
+        });
+        assertTrue(e.getMessage().contains("bad request"));
     }
 }
