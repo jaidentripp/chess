@@ -1,7 +1,9 @@
 package websocket.messages;
 
+import chess.ChessBoard;
 import chess.ChessGame;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -13,14 +15,10 @@ import java.util.Objects;
 public class ServerMessage {
     private final ServerMessageType serverMessageType;
 
-    //only used for LOAD_GAME
-    private final ChessGame game;
-
-    //only used for ERROR
-    private final String errorMessage;
-
-    //only used for NOTIFICATION
-    private final String message;
+    private String message;
+    private ChessBoard board;
+    private String playerColor;
+    private List<String> legalMoves;
 
     public enum ServerMessageType {
         LOAD_GAME,
@@ -28,54 +26,73 @@ public class ServerMessage {
         NOTIFICATION
     }
 
-    //constructor for LOAD_GAME
-    public ServerMessage(ChessGame game) {
-        this.serverMessageType = ServerMessageType.LOAD_GAME;
-        this.game = game;
-        this.errorMessage = null;
-        this.message = null;
-    }
-
-    //constructor for ERROR
-    public ServerMessage(String errorMessage) {
-        this.serverMessageType = ServerMessageType.ERROR;
-        this.errorMessage = errorMessage;
-        this.game = null;
-        this.message = null;
-    }
-
-    //constructor for NOTIFICATION
-    public ServerMessage(ServerMessageType type, String message) {
-        if (type != ServerMessageType.NOTIFICATION) {
-            throw new IllegalArgumentException("Use this constructor only for NOTIFICATION type");
-        }
-        this.serverMessageType = type;
-        this.message = message;
-        this.game = null;
-        this.errorMessage = null;
-    }
-
     public ServerMessage(ServerMessageType type) {
         this.serverMessageType = type;
-        this.game = null;
-        this.errorMessage = null;
-        this.message = null;
     }
+
+    //for notifications and errors
+    public ServerMessage(ServerMessageType type, String message) {
+        this.serverMessageType = type;
+        this.message = message;
+    }
+
+    //for board updates LOAD_GAME
+    public ServerMessage(ServerMessageType type, ChessBoard board, String playerColor) {
+        this.serverMessageType = type;
+        this.board = board;
+        this.playerColor = playerColor;
+    }
+
+    //for sending legal moves
+    public ServerMessage(ServerMessageType type, List<String> legalMoves) {
+        this.serverMessageType = type;
+        this.legalMoves = legalMoves;
+    }
+
+//    //constructor for NOTIFICATION
+//    public ServerMessage(ServerMessageType type, String message) {
+//        if (type != ServerMessageType.NOTIFICATION) {
+//            throw new IllegalArgumentException("Use this constructor only for NOTIFICATION type");
+//        }
+//        this.serverMessageType = type;
+//        this.message = message;
+//        this.game = null;
+//        this.errorMessage = null;
+//    }
+//
+//    public ServerMessage(ServerMessageType type) {
+//        this.serverMessageType = type;
+//        this.game = null;
+//        this.errorMessage = null;
+//        this.message = null;
+//    }
 
     public ServerMessageType getServerMessageType() {
         return this.serverMessageType;
     }
 
-    public ChessGame getGame() {
-        return game;
-    }
-
-    public String getErrorMessage() {
-        return errorMessage;
-    }
+//    public ChessGame getGame() {
+//        return game;
+//    }
+//
+//    public String getErrorMessage() {
+//        return errorMessage;
+//    }
 
     public String getMessage() {
         return message;
+    }
+
+    public ChessBoard getBoard() {
+        return board;
+    }
+
+    public String getPlayerColor() {
+        return playerColor;
+    }
+
+    public List<String> getLegalMoves() {
+        return legalMoves;
     }
 
     @Override
@@ -87,11 +104,15 @@ public class ServerMessage {
             return false;
         }
         ServerMessage that = (ServerMessage) o;
-        return getServerMessageType() == that.getServerMessageType();
+        return getServerMessageType() == that.getServerMessageType() &&
+                Objects.equals(getMessage(), that.getMessage()) &&
+                Objects.equals(getBoard(), that.getBoard()) &&
+                Objects.equals(getPlayerColor(), that.getPlayerColor()) &&
+                Objects.equals(getLegalMoves(), that.getLegalMoves());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getServerMessageType());
+        return Objects.hash(getServerMessageType(), getMessage(), getBoard(), getPlayerColor(), getLegalMoves());
     }
 }

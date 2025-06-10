@@ -1,7 +1,5 @@
 package websocket.commands;
 
-import chess.ChessMove;
-
 import java.util.Objects;
 
 /**
@@ -18,19 +16,35 @@ public class UserGameCommand {
 
     private final Integer gameID;
 
-    private final ChessMove move;
+    //for MAKE_MOVE
+    private String moveFrom;
+    private String moveTo;
+
+    //for highlight legal moves
+    private String selectedSquare;
 
     //constructor for CONNECT, LEAVE, RESIGN
     public UserGameCommand(CommandType commandType, String authToken, Integer gameID) {
-        this(commandType, authToken, gameID, null);
-    }
-
-    //constructor for MAKE_MOVE
-    public UserGameCommand(CommandType commandType, String authToken, Integer gameID, ChessMove move) {
         this.commandType = commandType;
         this.authToken = authToken;
         this.gameID = gameID;
-        this.move = move;
+    }
+
+    //constructor for MAKE_MOVE
+    public UserGameCommand(CommandType commandType, String authToken, Integer gameID, String moveFrom, String moveTo) {
+        this.commandType = commandType;
+        this.authToken = authToken;
+        this.gameID = gameID;
+        this.moveFrom = moveFrom;
+        this.moveTo = moveTo;
+    }
+
+    //for highlight legal moves
+    public UserGameCommand(CommandType commandType, String authToken, Integer gameID, String selectedSquare) {
+        this.commandType = commandType;
+        this.authToken = authToken;
+        this.gameID = gameID;
+        this.selectedSquare = selectedSquare;
     }
 
     public enum CommandType {
@@ -52,6 +66,18 @@ public class UserGameCommand {
         return gameID;
     }
 
+    public String getMoveFrom() {
+        return moveFrom;
+    }
+
+    public String getMoveTo() {
+        return moveTo;
+    }
+
+    public String getSelectedSquare() {
+        return selectedSquare;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -63,11 +89,15 @@ public class UserGameCommand {
         UserGameCommand that = (UserGameCommand) o;
         return getCommandType() == that.getCommandType() &&
                 Objects.equals(getAuthToken(), that.getAuthToken()) &&
-                Objects.equals(getGameID(), that.getGameID());
+                Objects.equals(getGameID(), that.getGameID()) &&
+                Objects.equals(getMoveFrom(), that.getMoveFrom()) &&
+                Objects.equals(getMoveTo(), that.getMoveTo()) &&
+                Objects.equals(getSelectedSquare(), that.getSelectedSquare());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getCommandType(), getAuthToken(), getGameID());
+        return Objects.hash(getCommandType(), getAuthToken(), getGameID(),
+                getMoveFrom(), getMoveTo(), getSelectedSquare());
     }
 }
