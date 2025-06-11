@@ -232,29 +232,6 @@ public class ChessGame {
         return false;
     }
 
-//    private boolean isKingInCheck(ChessBoard board, TeamColor team) {
-//        ChessPosition kingPos = findKing(board, team);
-//        if (kingPos == null) {
-//            return true;
-//        }
-//
-//        for (int row = 1; row <= 8; row++) {
-//            for (int col = 1; col <= 8; col++) {
-//                ChessPosition pos = new ChessPosition(row, col);
-//                ChessPiece piece = board.getPiece(pos);
-//                if (piece != null && piece.getTeamColor() != team) {
-//                    Collection<ChessMove> moves = piece.pieceMoves(board, pos);
-//                    for (ChessMove move : moves) {
-//                        if (move.getEndPosition().equals(kingPos)) {
-//                            return true;
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        return false;
-//    }
-
     public boolean hasAnyValidMoves(ChessBoard board, ChessGame.TeamColor teamColor) {
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {
