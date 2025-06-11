@@ -16,8 +16,8 @@ public class WebSocketClient {
     public WebSocketClient(String serverUri, Consumer<ServerMessage> messageHandler) {
         this.messageHandler = messageHandler;
         try {
-            WebSocketClient container = ContainerProvider.getWebSocketContainer();
-            container.connectToServer(this, new URI(serverUri));
+//            WebSocketClient container = ContainerProvider.getWebSocketContainer();
+//            container.connectToServer(this, new URI(serverUri));
         } catch (Exception e) {
             throw new RuntimeException("Websocket connection failed", e);
         }
