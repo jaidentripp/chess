@@ -49,35 +49,9 @@ public class ServerMessage {
         this.legalMoves = legalMoves;
     }
 
-//    //constructor for NOTIFICATION
-//    public ServerMessage(ServerMessageType type, String message) {
-//        if (type != ServerMessageType.NOTIFICATION) {
-//            throw new IllegalArgumentException("Use this constructor only for NOTIFICATION type");
-//        }
-//        this.serverMessageType = type;
-//        this.message = message;
-//        this.game = null;
-//        this.errorMessage = null;
-//    }
-//
-//    public ServerMessage(ServerMessageType type) {
-//        this.serverMessageType = type;
-//        this.game = null;
-//        this.errorMessage = null;
-//        this.message = null;
-//    }
-
     public ServerMessageType getServerMessageType() {
         return this.serverMessageType;
     }
-
-//    public ChessGame getGame() {
-//        return game;
-//    }
-//
-//    public String getErrorMessage() {
-//        return errorMessage;
-//    }
 
     public String getMessage() {
         return message;
