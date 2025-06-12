@@ -18,6 +18,7 @@ public class ServerMessage {
     private ChessBoard game;
     private String playerColor;
     private List<String> legalMoves;
+    private String errorMessage;
 
     public enum ServerMessageType {
         LOAD_GAME,
@@ -32,7 +33,11 @@ public class ServerMessage {
     //for notifications and errors
     public ServerMessage(ServerMessageType type, String message) {
         this.serverMessageType = type;
-        this.message = message;
+        if (type == ServerMessageType.ERROR) {
+            this.errorMessage = message; // <-- Set errorMessage for errors
+        } else {
+            this.message = message;
+        }
     }
 
     //for board updates LOAD_GAME
@@ -67,6 +72,9 @@ public class ServerMessage {
     public List<String> getLegalMoves() {
         return legalMoves;
     }
+    public String getErrorMessage() { // <-- Add getter for errorMessage
+        return errorMessage;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -81,11 +89,12 @@ public class ServerMessage {
                 Objects.equals(getMessage(), that.getMessage()) &&
                 Objects.equals(getGame(), that.getGame()) &&
                 Objects.equals(getPlayerColor(), that.getPlayerColor()) &&
-                Objects.equals(getLegalMoves(), that.getLegalMoves());
+                Objects.equals(getLegalMoves(), that.getLegalMoves()) &&
+                Objects.equals(getErrorMessage(), that.getErrorMessage());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getServerMessageType(), getMessage(), getGame(), getPlayerColor(), getLegalMoves());
+        return Objects.hash(getServerMessageType(), getMessage(), getGame(), getPlayerColor(), getLegalMoves(), getErrorMessage());
     }
 }

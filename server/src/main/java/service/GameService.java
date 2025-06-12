@@ -8,7 +8,7 @@ import result.*;
 import java.util.*;
 
 public class GameService {
-    private final DataAccess dao;
+    public final DataAccess dao;
     private static int nextGameId = 1;
 
     public GameService(DataAccess dao) { this.dao = dao; }
@@ -62,5 +62,13 @@ public class GameService {
             throw new DataAccessException("Error: bad request");
         }
         dao.updateGame(game);
+    }
+
+    public boolean gameExists(int gameID) {
+        try {
+            return dao.getGame(gameID) != null;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

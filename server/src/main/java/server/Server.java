@@ -33,7 +33,7 @@ public class Server {
 
     public int run(int desiredPort) {
 
-        Spark.webSocket("/ws", websocket.WebSocketServer.class);
+        //Spark.webSocket("/ws", websocket.WebSocketServer.class);
 
         Spark.port(desiredPort);
         Spark.staticFileLocation("web");
@@ -44,6 +44,11 @@ public class Server {
         ClearService clearService = new ClearService(dao);
         UserService userService = new UserService(dao);
         GameService gameService = new GameService(dao);
+
+        // Set the shared GameService for WebSocketServer
+        websocket.WebSocketServer.setGameService(gameService);
+
+        Spark.webSocket("/ws", websocket.WebSocketServer.class);
 
         Spark.delete("/db", (req, res) -> handleClear(clearService, req, res, gson));
         Spark.post("/user", (req, res) -> handleRegister(userService, req, res, gson));
