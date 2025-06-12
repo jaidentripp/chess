@@ -11,8 +11,51 @@ package websocket;
 //import java.util.*;
 //import java.io.IOException;
 
+import chess.ChessBoard;
+import com.google.gson.Gson;
+import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
+import org.eclipse.jetty.websocket.api.annotations.WebSocket;
+import websocket.commands.UserGameCommand;
+import websocket.messages.ServerMessage;
+
+import java.io.IOException;
+
+
 //@ServerEndpoint("/ws")
+@WebSocket
 public class WebSocketServer {
+
+    private static final Gson gson = new Gson();
+
+    @OnWebSocketConnect
+    public void onConnect(Session session) {
+        // Optionally log connection
+    }
+
+    @OnWebSocketClose
+    public void onClose(Session session, int statusCode, String reason) {
+        // Optionally log close
+    }
+
+    @OnWebSocketMessage
+    public void onMessage(Session session, String message) throws IOException {
+        UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
+
+        if (command.getCommandType() == UserGameCommand.CommandType.CONNECT) {
+            //dummy ChessBoard and player color for the test
+            ChessBoard board = new ChessBoard(); //ensure ChessBoard has a default constructor
+            String playerColor = "WHITE";        //or derive from command if needed
+
+            ServerMessage response = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, board, playerColor);
+            session.getRemote().sendString(gson.toJson(response));
+        }
+        //add more command handling here for other tests
+    }
+
+
 //    private static final Gson gson = new Gson();
 //
 //    // Track sessions per gameID
