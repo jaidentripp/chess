@@ -300,79 +300,94 @@ public class WebSocketServer {
 
                 break;
             }
-            // Optionally: handle other command types here
-            default: {
-                ServerMessage errorMsg = new ServerMessage(
-                        ServerMessage.ServerMessageType.ERROR,
-                        "Unknown command type."
+            case RESIGN: {
+                //get game and player info
+                GameData gameData;
+                try {
+                    gameData = gameService.dao.getGame(gameID);
+                } catch (Exception e) {
+                    ServerMessage errorMsg = new ServerMessage(
+                            ServerMessage.ServerMessageType.ERROR,
+                            "Data access error while fetching game."
+                    );
+                    session.getRemote().sendString(GSON.toJson(errorMsg));
+                    return;
+                }
+
+                //game is already over can't resign
+                if (gameData.game().isGameOver()) {
+                    ServerMessage errorMsg = new ServerMessage(
+                            ServerMessage.ServerMessageType.ERROR,
+                            "Game is already over."
+                    );
+                    session.getRemote().sendString(GSON.toJson(errorMsg));
+                    return;
+                }
+
+                String username = null;
+                try {
+                    AuthData auth = gameService.dao.getAuth(authToken);
+                    if (auth != null) {
+                        username = auth.username();
+                    }
+                } catch (Exception e) {
+                    //handle
+                }
+
+                //determine player's color
+                ChessGame.TeamColor playerColor = null;
+                if (username != null) {
+                    if (username.equals(gameData.whiteUsername())) {
+                        playerColor = ChessGame.TeamColor.WHITE;
+                    } else if (username.equals(gameData.blackUsername())) {
+                        playerColor = ChessGame.TeamColor.BLACK;
+                    }
+                }
+                //only allow resign if the user is a player (not an observer)
+                if (playerColor == null) {
+                    ServerMessage errorMsg = new ServerMessage(
+                            ServerMessage.ServerMessageType.ERROR,
+                            "Observers cannot resign."
+                    );
+                    session.getRemote().sendString(GSON.toJson(errorMsg));
+                    return;
+                }
+
+                gameData.game().setGameOver(true);
+
+                //save updated game state
+                try {
+                    gameService.dao.updateGame(new GameData(
+                            gameData.gameID(),
+                            gameData.whiteUsername(),
+                            gameData.blackUsername(),
+                            gameData.gameName(),
+                            gameData.game()
+                    ));
+                } catch (Exception e) {
+                    ServerMessage errorMsg = new ServerMessage(
+                            ServerMessage.ServerMessageType.ERROR,
+                            "Failed to update game after resign."
+                    );
+                    session.getRemote().sendString(GSON.toJson(errorMsg));
+                    return;
+                }
+
+                //notify all players
+                Set<Session> sessions = gameSessions.get(gameID);
+                String resignMsg = (playerColor != null ? playerColor : username) + " resigned. Game over!";
+                ServerMessage notification = new ServerMessage(
+                        ServerMessage.ServerMessageType.NOTIFICATION,
+                        resignMsg
                 );
-                session.getRemote().sendString(GSON.toJson(errorMsg));
+                for (Session s : sessions) {
+                    if (s.isOpen()) {
+                        s.getRemote().sendString(GSON.toJson(notification));
+                    }
+                }
                 break;
             }
         }
-
-
-//        UserGameCommand command = GSON.fromJson(message, UserGameCommand.class);
-//
-//        if (command.getCommandType() == UserGameCommand.CommandType.CONNECT) {
-//
-//            String authToken = command.getAuthToken(); // <-- get from command
-//
-//            // 1. Validate auth token
-//            try {
-//                if (gameService == null || gameService.dao.getAuth(authToken) == null) {
-//                    ServerMessage errorMsg = new ServerMessage(
-//                            ServerMessage.ServerMessageType.ERROR,
-//                            "Invalid or missing authentication token."
-//                    );
-//                    session.getRemote().sendString(GSON.toJson(errorMsg));
-//                    return;
-//                }
-//            } catch (DataAccessException e) {
-//                ServerMessage errorMsg = new ServerMessage(
-//                        ServerMessage.ServerMessageType.ERROR,
-//                        "Data access error while checking authentication."
-//                );
-//                session.getRemote().sendString(GSON.toJson(errorMsg));
-//                return;
-//            }
-//
-//            int gameID = command.getGameID(); // Ensure this is present in the command
-//
-//            if (!isValidGameID(gameID)) {
-//                // Send ERROR message to this session
-//                ServerMessage errorMsg = new ServerMessage(
-//                        ServerMessage.ServerMessageType.ERROR,
-//                        "Invalid game ID: " + gameID
-//                );
-//                session.getRemote().sendString(GSON.toJson(errorMsg));
-//                return;
-//            }
-//
-//            gameSessions.putIfAbsent(gameID, new CopyOnWriteArraySet<>());
-//            Set<Session> sessions = gameSessions.get(gameID);
-//            sessions.add(session);
-//            sessionGameMap.put(session, gameID);
-//
-//            ChessBoard game = new ChessBoard();
-//            game.resetBoard();
-//            String playerColor = "WHITE"; // Or derive from command
-//
-//            // 1. Send LOAD_GAME only to the connecting session
-//            ServerMessage loadGameMsg = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, game, playerColor);
-//            session.getRemote().sendString(GSON.toJson(loadGameMsg));
-//
-//            // 2. Send NOTIFICATION to all other sessions in the game
-//            ServerMessage notificationMsg = new ServerMessage(
-//                    ServerMessage.ServerMessageType.NOTIFICATION,
-//                    playerColor + " joined the game!"
-//            );
-//            for (Session s : sessions) {
-//                if (s != session && s.isOpen()) {
-//                    s.getRemote().sendString(GSON.toJson(notificationMsg));
-//                }
-//            }
-//        }
     }
 
     private boolean isValidGameID(int gameID) {

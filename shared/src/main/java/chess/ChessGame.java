@@ -15,6 +15,8 @@ public class ChessGame {
     private ChessBoard board;
     private TeamColor currentTurn;
 
+    private boolean gameOver = false;
+
     public ChessGame() {
         board = new ChessBoard();
         board.resetBoard();
@@ -81,7 +83,9 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        //throw new RuntimeException("Not implemented");
+        if (isGameOver()) {
+            throw new InvalidMoveException("Game is over. No more moves allowed.");
+        }
         ChessPiece piece = board.getPiece(move.getStartPosition());
         if (piece == null || piece.getTeamColor() != currentTurn) {
             throw new InvalidMoveException("No piece at start or not your turn");
@@ -266,6 +270,14 @@ public class ChessGame {
             }
         }
         return false;
+    }
+
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
     }
 
     @Override
