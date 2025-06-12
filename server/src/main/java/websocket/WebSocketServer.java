@@ -1,16 +1,5 @@
 package websocket;
 
-//import javax.websocket.*;
-//import javax.websocket.server.ServerEndpoint;
-//import com.google.gson.Gson;
-//import org.eclipse.jetty.server.session.Session;
-//import websocket.commands.UserGameCommand;
-//import websocket.messages.ServerMessage;
-//import chess.ChessBoard;
-//import chess.ChessGame;
-//import java.util.*;
-//import java.io.IOException;
-
 import chess.ChessBoard;
 import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
@@ -23,8 +12,6 @@ import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 
-
-//@ServerEndpoint("/ws")
 @WebSocket
 public class WebSocketServer {
 
@@ -45,58 +32,35 @@ public class WebSocketServer {
         UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
 
         if (command.getCommandType() == UserGameCommand.CommandType.CONNECT) {
-            //dummy ChessBoard and player color for the test
-            ChessBoard board = new ChessBoard(); //ensure ChessBoard has a default constructor
-            String playerColor = "WHITE";        //or derive from command if needed
+            ChessBoard game = new ChessBoard(); // Make sure this is NOT null and initializes a valid board!
+            game.resetBoard();
+            String playerColor = "WHITE"; // or derive from command
 
-            ServerMessage response = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, board, playerColor);
+            ServerMessage response = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, game, playerColor);
             session.getRemote().sendString(gson.toJson(response));
         }
-        //add more command handling here for other tests
+
+//        try {
+//            UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
+//
+//            if (command.getCommandType() == UserGameCommand.CommandType.CONNECT) {
+//                ChessBoard board = new ChessBoard(); // Ensure this works
+//                String playerColor = "WHITE"; // Or derive from command
+//
+//                ServerMessage response = new ServerMessage(
+//                        ServerMessage.ServerMessageType.LOAD_GAME,
+//                        board,
+//                        playerColor
+//                );
+//                session.getRemote().sendString(gson.toJson(response));
+//            }
+//        } catch (Exception e) {
+//            // Send an ERROR message if something fails
+//            ServerMessage error = new ServerMessage(
+//                    ServerMessage.ServerMessageType.ERROR,
+//                    "Failed to process command: " + e.getMessage()
+//            );
+//            session.getRemote().sendString(gson.toJson(error));
+//        }
     }
-
-
-//    private static final Gson gson = new Gson();
-//
-//    // Track sessions per gameID
-//    private static final Map<Integer, Set<Session>> gameSessions = new HashMap<>();
-//    // Track game state per gameID (replace with your DB or game manager as needed)
-//    private static final Map<Integer, ChessGame> games = new HashMap<>();
-//
-//    @OnOpen
-//    public void onOpen(Session session) {
-//        // Wait for CONNECT command
-//    }
-//
-//    @OnMessage
-//    public void onMessage(String message, Session session) throws IOException {
-//        UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
-//        if (command.getCommandType() == UserGameCommand.CommandType.CONNECT) {
-//            int gameID = command.getGameID();
-//            // Add session to game
-//            gameSessions.computeIfAbsent(gameID, k -> new HashSet<>()).add(session);
-//
-//            // Get or create game state
-//            ChessGame game = games.computeIfAbsent(gameID, k -> new ChessGame());
-//            ChessBoard board = game.getBoard();
-//
-//            // For this test, just send LOAD_GAME to the connecting client
-//            ServerMessage loadMsg = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, board, "white"); // or "black" or null as needed
-//            session.getBasicRemote().sendText(gson.toJson(loadMsg));
-//        }
-//        // Add other command handlers (MAKE_MOVE, LEAVE, RESIGN) as needed for more tests
-//    }
-//
-//    @OnClose
-//    public void onClose(Session session, CloseReason reason) {
-//        // Remove session from all games
-//        for (Set<Session> sessions : gameSessions.values()) {
-//            sessions.remove(session);
-//        }
-//    }
-//
-//    @OnError
-//    public void onError(Session session, Throwable throwable) {
-//        System.err.println("WebSocket error: " + throwable.getMessage());
-//    }
 }

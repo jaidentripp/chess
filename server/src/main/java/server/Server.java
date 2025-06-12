@@ -33,7 +33,7 @@ public class Server {
 
     public int run(int desiredPort) {
 
-        //webSocket("/ws", websocket.WebSocketServer.class);
+        Spark.webSocket("/ws", websocket.WebSocketServer.class);
 
         Spark.port(desiredPort);
         Spark.staticFileLocation("web");
@@ -53,32 +53,11 @@ public class Server {
         Spark.post("/game", (req, res) -> handleCreateGame(gameService, req, res, gson));
         Spark.put("/game", (req, res) -> handleJoinGame(gameService, req, res, gson));
 
-        // Register the WebSocket endpoint at /ws
-        //webSocket("/ws", websocket.WebSocketServer.class);
-
-        //Spark.init();               // Start the server and initialize WebSocket support
+        Spark.init();
 
         Spark.awaitInitialization();
 
-        // --- Jetty WebSocket setup ---
-//        try {
-//            // Get the underlying Jetty server from Spark
-//            org.eclipse.jetty.server.Server jettyServer = Spark.server().server();
-//
-//            // Create a context handler for WebSocket
-//            ServletContextHandler wsContext = new ServletContextHandler(ServletContextHandler.SESSIONS);
-//            wsContext.setContextPath("/");
-//
-//            // Register the WebSocket endpoint at /ws
-//            WebSocketUpgradeFilter wsFilter = WebSocketUpgradeFilter.configureContext(wsContext);
-//            wsFilter.addMapping("/ws", (req, resp) -> new websocket.WebSocketServer());
-//
-//            // Attach the WebSocket context to Jetty
-//            jettyServer.insertHandler(wsContext);
-//        } catch (Exception e) {
-//            System.err.println("Failed to set up WebSocket: " + e.getMessage());
-//            e.printStackTrace();
-//        }
+        System.out.println("Server started on port: " + Spark.port());
 
         return Spark.port();
     }

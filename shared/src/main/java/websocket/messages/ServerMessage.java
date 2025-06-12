@@ -1,7 +1,6 @@
 package websocket.messages;
 
 import chess.ChessBoard;
-import chess.ChessGame;
 
 import java.util.List;
 import java.util.Objects;
@@ -16,7 +15,7 @@ public class ServerMessage {
     private final ServerMessageType serverMessageType;
 
     private String message;
-    private ChessBoard board;
+    private ChessBoard game;
     private String playerColor;
     private List<String> legalMoves;
 
@@ -37,9 +36,9 @@ public class ServerMessage {
     }
 
     //for board updates LOAD_GAME
-    public ServerMessage(ServerMessageType type, ChessBoard board, String playerColor) {
+    public ServerMessage(ServerMessageType type, ChessBoard game, String playerColor) {
         this.serverMessageType = type;
-        this.board = board;
+        this.game = game;
         this.playerColor = playerColor;
     }
 
@@ -57,8 +56,8 @@ public class ServerMessage {
         return message;
     }
 
-    public ChessBoard getBoard() {
-        return board;
+    public ChessBoard getGame() {
+        return game;
     }
 
     public String getPlayerColor() {
@@ -80,13 +79,13 @@ public class ServerMessage {
         ServerMessage that = (ServerMessage) o;
         return getServerMessageType() == that.getServerMessageType() &&
                 Objects.equals(getMessage(), that.getMessage()) &&
-                Objects.equals(getBoard(), that.getBoard()) &&
+                Objects.equals(getGame(), that.getGame()) &&
                 Objects.equals(getPlayerColor(), that.getPlayerColor()) &&
                 Objects.equals(getLegalMoves(), that.getLegalMoves());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getServerMessageType(), getMessage(), getBoard(), getPlayerColor(), getLegalMoves());
+        return Objects.hash(getServerMessageType(), getMessage(), getGame(), getPlayerColor(), getLegalMoves());
     }
 }

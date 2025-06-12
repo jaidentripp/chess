@@ -1,17 +1,13 @@
 package websocket;
 
 import chess.ChessBoard;
-import chess.ChessGame;
-import client.ChessClient;
 import ui.ChessBoardPrinter;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 import com.google.gson.Gson;
 import javax.websocket.*;
-import javax.websocket.server.ServerEndpoint;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
 @ClientEndpoint
 public class WebSocketClient {
@@ -38,7 +34,7 @@ public class WebSocketClient {
 //        ServerMessage serverMsg = gson.fromJson(message, ServerMessage.class);
 //        switch (serverMsg.getServerMessageType()) {
 //            case LOAD_GAME -> {
-//                System.out.println("LOAD_GAME: " + serverMsg.getBoard());
+//                System.out.println("LOAD_GAME: " + serverMsg.getGame());
 //                // Update your UI or game state here
 //            }
 //            case NOTIFICATION -> {
@@ -55,7 +51,7 @@ public class WebSocketClient {
         ServerMessage serverMsg = gson.fromJson(message, ServerMessage.class);
         switch (serverMsg.getServerMessageType()) {
             case LOAD_GAME -> {
-                ChessBoard board = serverMsg.getBoard();
+                ChessBoard board = serverMsg.getGame();
                 String playerColor = serverMsg.getPlayerColor();
                 //ChessGame game = serverMsg.getGame();
                 // Update your UI here (e.g., redraw board)
