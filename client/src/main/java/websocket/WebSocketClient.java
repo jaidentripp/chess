@@ -2,6 +2,7 @@ package websocket;
 
 import chess.ChessBoard;
 import chess.ChessGame;
+import client.ChessClient;
 import ui.ChessBoardPrinter;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
@@ -49,7 +50,7 @@ public class WebSocketClient {
 //        }
 //    }
 
-    @Override
+    @OnMessage
     public void onMessage(String message) {
         ServerMessage serverMsg = gson.fromJson(message, ServerMessage.class);
         switch (serverMsg.getServerMessageType()) {

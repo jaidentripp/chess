@@ -11,6 +11,7 @@ import client.RegisterResult;
 import ui.ChessBoardPrinter;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Scanner;
 
@@ -25,6 +26,7 @@ public class ChessClient {
     private String username = null;
     private List<GameInfo> lastListedGames = new ArrayList<>();
     private WebSocketClient webSocketClient;
+    private ChessBoard currentBoard;
 
     public ChessClient(String serverUrl) {
         this.server = new ServerFacade(serverUrl);
@@ -376,7 +378,7 @@ public class ChessClient {
         }
 
         // Get legal moves for this piece
-        List<ChessMove> legalMoves = piece.pieceMoves(currentBoard, pos);
+        Collection<ChessMove> legalMoves = piece.pieceMoves(currentBoard, pos);
 
         if (legalMoves.isEmpty()) {
             System.out.println("No legal moves for this piece.");
