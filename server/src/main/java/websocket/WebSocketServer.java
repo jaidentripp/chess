@@ -387,6 +387,73 @@ public class WebSocketServer {
                 }
                 break;
             }
+            case LEAVE: {
+                //remove the session from the game
+                Set<Session> sessions = gameSessions.get(gameID);
+                if (sessions != null) {
+                    sessions.remove(session);
+                }
+                sessionGameMap.remove(session);
+
+                //get username for the notification
+                String username = null;
+                try {
+                    AuthData auth = gameService.dao.getAuth(authToken);
+                    if (auth != null) {
+                        username = auth.username();
+                    }
+                } catch (Exception e) {
+                    //ignore
+                }
+
+                GameData gameData = null;
+                try {
+                    gameData = gameService.dao.getGame(gameID);
+                } catch (Exception e) {
+                    // ignore
+                }
+
+                String newWhite = gameData.whiteUsername();
+                String newBlack = gameData.blackUsername();
+                if (username != null && gameData != null) {
+                    if (username.equals(gameData.whiteUsername())) {
+                        newWhite = null;
+                    } else if (username.equals(gameData.blackUsername())) {
+                        newBlack = null;
+                    }
+                }
+
+                // Save the updated GameData
+                try {
+                    gameService.dao.updateGame(new GameData(
+                            gameData.gameID(),
+                            newWhite,
+                            newBlack,
+                            gameData.gameName(),
+                            gameData.game()
+                    ));
+                } catch (Exception e) {
+                    // ignore or handle error
+                }
+
+                //notification message
+                String leaveMsg = (username != null ? username : "A player") + " left the game!";
+
+                ServerMessage notification = new ServerMessage(
+                        ServerMessage.ServerMessageType.NOTIFICATION,
+                        leaveMsg
+                );
+
+                //notify all other sessions (not the leaver)
+                if (sessions != null) {
+                    for (Session s : sessions) {
+                        if (s != session && s.isOpen()) {
+                            s.getRemote().sendString(GSON.toJson(notification));
+                        }
+                    }
+                }
+                break;
+            }
         }
     }
 
