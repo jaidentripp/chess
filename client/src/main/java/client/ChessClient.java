@@ -25,8 +25,6 @@ public class ChessClient {
     private String authToken = null;
     private String username = null;
     private List<GameInfo> lastListedGames = new ArrayList<>();
-    private WebSocketClient webSocketClient;
-    private ChessBoard currentBoard;
 
     public ChessClient(String serverUrl) {
         this.server = new ServerFacade(serverUrl);
@@ -201,18 +199,10 @@ public class ChessClient {
             }
             server.joinGame(authToken, gameData.gameID(), color);
             System.out.println("Joined game as " + color + "!");
-
-            //connect websocket
-            connectWebSocket(gameData.gameID());
-
             //Draw board
             ChessBoard board = new ChessBoard();
             board.resetBoard();
             ChessBoardPrinter.printBoard(board, color.equals("white"));
-
-            //enter gameplay loop
-            startGameplayLoop(gameData.gameID(), color);
-
         } catch (NumberFormatException e) {
             System.out.println("Invalid input (not a number).");
         } catch (Exception e) {
@@ -234,162 +224,14 @@ public class ChessClient {
             }
             GameInfo gameData = lastListedGames.get(gameID - 1);
             System.out.println("Observing game...");
-
-            //connect websocket without joining as a player
-            connectWebSocket(gameData.gameID());
-
             //print board with white observer perspective
             ChessBoard board = new ChessBoard();
             board.resetBoard();
             ChessBoardPrinter.printBoard(board, true);
-
-            //enter observer loop - null = observer
-            startGameplayLoop(gameData.gameID(), null);
-
         } catch (NumberFormatException e) {
             System.out.println("Invalid input (not a number).");
         } catch (Exception e) {
             System.out.println("Observe game failed: " + e.getMessage());
-        }
-    }
-
-    private void connectWebSocket(int gameID) throws Exception {
-        String wsUrl = "ws://localhost:8080/ws"; // Use your server's WebSocket URL
-        webSocketClient = new WebSocketClient(wsUrl);
-
-        // Send CONNECT command
-        UserGameCommand connectCmd = new UserGameCommand(
-                UserGameCommand.CommandType.CONNECT, authToken, gameID);
-        webSocketClient.sendCommand(connectCmd);
-    }
-
-    private void startGameplayLoop(int gameID, String playerColor) {
-        System.out.println("\n[IN-GAME] Type 'help' for commands");
-        while (true) {
-            System.out.print("[IN-GAME] >>> ");
-            String input = scanner.nextLine().trim().toLowerCase();
-            switch (input) {
-                case "help" -> printGameplayHelp(playerColor != null);
-                case "redraw" -> redrawBoard(playerColor);
-                case "leave" -> {
-                    sendLeaveCommand(gameID);
-                    return; // Exit gameplay loop
-                }
-                case "move" -> {
-                    if (playerColor == null) {
-                        System.out.println("Observers cannot make moves!");
-                        break;
-                    }
-                    handleMakeMove(gameID);
-                }
-                case "resign" -> {
-                    if (playerColor == null) {
-                        System.out.println("Observers cannot resign!");
-                        break;
-                    }
-                    sendResignCommand(gameID);
-                    return; // Game over
-                }
-                case "highlight" -> highlightLegalMoves();
-                default -> System.out.println("Unknown command. Type 'help'.");
-            }
-        }
-    }
-
-    private void sendLeaveCommand(int gameID) {
-        UserGameCommand leaveCmd = new UserGameCommand(
-                UserGameCommand.CommandType.LEAVE, authToken, gameID);
-        webSocketClient.sendCommand(leaveCmd);
-        System.out.println("Left the game.");
-    }
-
-    private void sendResignCommand(int gameID) {
-        UserGameCommand resignCmd = new UserGameCommand(
-                UserGameCommand.CommandType.RESIGN, authToken, gameID);
-        webSocketClient.sendCommand(resignCmd);
-        System.out.println("Resigned from the game.");
-    }
-
-    private void handleMakeMove(int gameID) {
-        System.out.print("Enter move (e.g., 'e2 e4'): ");
-        String[] parts = scanner.nextLine().trim().split(" ");
-        if (parts.length != 2) {
-            System.out.println("Invalid move format. Example: 'e2 e4'");
-            return;
-        }
-        String moveFrom = parts[0];
-        String moveTo = parts[1];
-
-        UserGameCommand moveCmd = new UserGameCommand(
-                UserGameCommand.CommandType.MAKE_MOVE,
-                authToken,
-                gameID,
-                moveFrom,
-                moveTo
-        );
-        webSocketClient.sendCommand(moveCmd);
-    }
-
-    private void printGameplayHelp(boolean isPlayer) {
-        System.out.println("""
-        Available commands:
-          help      - Show this help
-          redraw    - Redraw the chess board
-          leave     - Leave the game
-          move      - Make a move (players only)
-          resign    - Resign from the game (players only)
-          highlight - Highlight legal moves for a piece
-        """);
-    }
-
-    private void redrawBoard(String playerColor) {
-        // Fetch latest game state from server if needed
-        // For simplicity, we'll assume the WebSocket sends LOAD_GAME updates
-        System.out.println("(Board will update automatically on moves)");
-    }
-
-    private void highlightLegalMoves() {
-        //System.out.println("Highlighting legal moves is a local operation. Please select a piece on the board
-        // (not implemented in this CLI).");
-        // Prompt user for the square
-        System.out.print("Enter the square of the piece (e.g., e2): ");
-        String square = scanner.nextLine().trim().toLowerCase();
-
-        // You need to have access to the current board state
-        // For example, suppose you have a field:
-        // private ChessBoard currentBoard;
-        // (Update this field whenever you receive a LOAD_GAME message.)
-
-        if (currentBoard == null) {
-            System.out.println("Board state not available.");
-            return;
-        }
-
-        // Convert square like "e2" to row/col indices
-        int col = square.charAt(0) - 'a' + 1;
-        int row = Character.getNumericValue(square.charAt(1));
-
-        ChessPosition pos = new ChessPosition(row, col);
-        ChessPiece piece = currentBoard.getPiece(pos);
-
-        if (piece == null) {
-            System.out.println("No piece at that square.");
-            return;
-        }
-
-        // Get legal moves for this piece
-        Collection<ChessMove> legalMoves = piece.pieceMoves(currentBoard, pos);
-
-        if (legalMoves.isEmpty()) {
-            System.out.println("No legal moves for this piece.");
-            return;
-        }
-
-        System.out.println("Legal moves for " + square + ":");
-        for (ChessMove move : legalMoves) {
-            ChessPosition end = move.getEndPosition();
-            char endCol = (char) ('a' + end.getColumn() - 1);
-            System.out.println("  " + endCol + end.getRow());
         }
     }
 }
