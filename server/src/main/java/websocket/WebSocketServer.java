@@ -15,7 +15,7 @@ import java.io.IOException;
 @WebSocket
 public class WebSocketServer {
 
-    private static final Gson gson = new Gson();
+    private static final Gson GSON = new Gson();
 
     @OnWebSocketConnect
     public void onConnect(Session session) {
@@ -29,38 +29,15 @@ public class WebSocketServer {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {
-        UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
+        UserGameCommand command = GSON.fromJson(message, UserGameCommand.class);
 
         if (command.getCommandType() == UserGameCommand.CommandType.CONNECT) {
-            ChessBoard game = new ChessBoard(); // Make sure this is NOT null and initializes a valid board!
+            ChessBoard game = new ChessBoard(); //make sure this is NOT null and initializes a valid board!
             game.resetBoard();
             String playerColor = "WHITE"; // or derive from command
 
             ServerMessage response = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, game, playerColor);
-            session.getRemote().sendString(gson.toJson(response));
+            session.getRemote().sendString(GSON.toJson(response));
         }
-
-//        try {
-//            UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
-//
-//            if (command.getCommandType() == UserGameCommand.CommandType.CONNECT) {
-//                ChessBoard board = new ChessBoard(); // Ensure this works
-//                String playerColor = "WHITE"; // Or derive from command
-//
-//                ServerMessage response = new ServerMessage(
-//                        ServerMessage.ServerMessageType.LOAD_GAME,
-//                        board,
-//                        playerColor
-//                );
-//                session.getRemote().sendString(gson.toJson(response));
-//            }
-//        } catch (Exception e) {
-//            // Send an ERROR message if something fails
-//            ServerMessage error = new ServerMessage(
-//                    ServerMessage.ServerMessageType.ERROR,
-//                    "Failed to process command: " + e.getMessage()
-//            );
-//            session.getRemote().sendString(gson.toJson(error));
-//        }
     }
 }

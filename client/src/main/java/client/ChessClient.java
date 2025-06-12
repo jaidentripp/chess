@@ -15,10 +15,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Scanner;
 
-import websocket.WebSocketClient;
-import websocket.commands.UserGameCommand;
-import websocket.messages.ServerMessage;
-
 public class ChessClient {
     private final Scanner scanner = new Scanner(System.in);
     private final ServerFacade server;
