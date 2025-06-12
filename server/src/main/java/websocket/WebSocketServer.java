@@ -148,7 +148,6 @@ public class WebSocketServer {
         } catch (Exception e) {
             playerColor = null;
         }
-
         //send LOAD_GAME to connecting session
         ServerMessage loadGameMsg = new ServerMessage(
                 ServerMessage.ServerMessageType.LOAD_GAME,
@@ -156,7 +155,6 @@ public class WebSocketServer {
                 playerColor
         );
         session.getRemote().sendString(GSON.toJson(loadGameMsg));
-
         //send NOTIFICATION to others
         ServerMessage notificationMsg = new ServerMessage(
                 ServerMessage.ServerMessageType.NOTIFICATION,
@@ -169,147 +167,32 @@ public class WebSocketServer {
         }
     }
 
-    private void handleMakeMove(Session session, UserGameCommand command, int gameID, String authToken)
-            throws IOException {
-        GameData gameData;
-        try {
-            gameData = gameService.dao.getGame(gameID);
-        } catch (Exception e) {
-            ServerMessage errorMsg = new ServerMessage(
-                    ServerMessage.ServerMessageType.ERROR,
-                    "Data access error while fetching game."
-            );
-            session.getRemote().sendString(GSON.toJson(errorMsg));
-            return;
-        }
+    private void handleMakeMove(Session session, UserGameCommand command, int gameID, String authToken) throws IOException {
+        GameData gameData = fetchGameData(session, gameID);
+        if (gameData == null) return;
 
         ChessGame chessGame = gameData.game();
         ChessBoard board = chessGame.getBoard();
-
         ChessMove move = command.getMove();
 
         if (move == null) {
-            ServerMessage errorMsg = new ServerMessage(
-                    ServerMessage.ServerMessageType.ERROR,
-                    "Move not provided."
-            );
-            session.getRemote().sendString(GSON.toJson(errorMsg));
+            sendError(session, "Move not provided.");
             return;
         }
-
-        //get the username from the auth token
-        String username = null;
-        try {
-            AuthData auth = gameService.dao.getAuth(authToken);
-            if (auth != null) {
-                username = auth.username();
-            }
-        } catch (Exception e) {
-            //handle
-        }
-
-        //players color game
-        ChessGame.TeamColor playerColor = null;
-        if (username != null) {
-            if (username.equals(gameData.whiteUsername())) {
-                playerColor = ChessGame.TeamColor.WHITE;
-            } else if (username.equals(gameData.blackUsername())) {
-                playerColor = ChessGame.TeamColor.BLACK;
-            }
-        }
-
-        //check if it's their turn and if the piece matches their color
-        boolean validMove = false;
-        if (playerColor != null && chessGame.getTeamTurn() == playerColor) {
-            ChessPosition from = move.getStartPosition();
-            ChessPiece piece = chessGame.getBoard().getPiece(from);
-            if (piece != null && piece.getTeamColor() == playerColor) {
-                validMove = true;
-            }
-        }
-
-        if (!validMove) {
-            ServerMessage errorMsg = new ServerMessage(
-                    ServerMessage.ServerMessageType.ERROR,
-                    "You cannot move for your opponent."
-            );
-            session.getRemote().sendString(GSON.toJson(errorMsg));
+        String username = fetchUsername(authToken);
+        ChessGame.TeamColor playerColor = getPlayerColor(username, gameData);
+        if (!isValidMoveAttempt(chessGame, move, playerColor)) {
+            sendError(session, "You cannot move for your opponent.");
             return;
         }
-
-        //attempt to apply move
-        try {
-            chessGame.makeMove(move);
-        } catch (Exception e) {
-            ServerMessage errorMsg = new ServerMessage(
-                    ServerMessage.ServerMessageType.ERROR,
-                    "Invalid move."
-            );
-            session.getRemote().sendString(GSON.toJson(errorMsg));
+        if (!applyMove(session, chessGame, move)){
             return;
         }
-
-        //save updated game state
-        try {
-            gameService.dao.updateGame(new GameData(
-                    gameData.gameID(),
-                    gameData.whiteUsername(),
-                    gameData.blackUsername(),
-                    gameData.gameName(),
-                    chessGame
-            ));
-        } catch (Exception e) {
-            ServerMessage errorMsg = new ServerMessage(
-                    ServerMessage.ServerMessageType.ERROR,
-                    "Failed to update game after move."
-            );
-            session.getRemote().sendString(GSON.toJson(errorMsg));
+        if (!updateGameState(session, gameService, gameData, chessGame)){
             return;
         }
-
-        //broadcast updated board to all sessions in this game
-        Set<Session> sessions = GAME_SESSIONS.get(gameID);
-        ServerMessage loadGameMsg = new ServerMessage(
-                ServerMessage.ServerMessageType.LOAD_GAME,
-                board,
-                null
-        );
-        for (Session s : sessions) {
-            if (s.isOpen()) {
-                s.getRemote().sendString(GSON.toJson(loadGameMsg));
-            }
-        }
-
-        //send NOTIFICATION to all except the mover (session)
-        String moverUsername = null;
-        try {
-            AuthData auth = gameService.dao.getAuth(authToken);
-            if (auth != null) {
-                moverUsername = auth.username();
-            }
-        } catch (Exception e) {
-            // ignore
-        }
-
-        String moveDesc = String.format(
-                "%s moved from %s to %s",
-                (moverUsername != null ? moverUsername : "A player"),
-                //convert move start/end to algebraic notation for readability
-                toAlgebraicWebSocket(move.getStartPosition()),
-                toAlgebraicWebSocket(move.getEndPosition())
-        );
-
-        ServerMessage notifyMsg = new ServerMessage(
-                ServerMessage.ServerMessageType.NOTIFICATION,
-                moveDesc
-        );
-
-        for (Session s : sessions) {
-            if (s != session && s.isOpen()) {
-                s.getRemote().sendString(GSON.toJson(notifyMsg));
-            }
-        }
-
+        broadcastBoard(gameID, board);
+        notifyMove(gameID, session, move, authToken);
     }
 
     private void handleResign(Session session, UserGameCommand command, int gameID, String authToken)
@@ -326,7 +209,6 @@ public class WebSocketServer {
             session.getRemote().sendString(GSON.toJson(errorMsg));
             return;
         }
-
         //game is already over can't resign
         if (gameData.game().isGameOver()) {
             ServerMessage errorMsg = new ServerMessage(
@@ -336,7 +218,6 @@ public class WebSocketServer {
             session.getRemote().sendString(GSON.toJson(errorMsg));
             return;
         }
-
         String username = null;
         try {
             AuthData auth = gameService.dao.getAuth(authToken);
@@ -346,7 +227,6 @@ public class WebSocketServer {
         } catch (Exception e) {
             //handle
         }
-
         //determine player's color
         ChessGame.TeamColor playerColor = null;
         if (username != null) {
@@ -365,9 +245,7 @@ public class WebSocketServer {
             session.getRemote().sendString(GSON.toJson(errorMsg));
             return;
         }
-
         gameData.game().setGameOver(true);
-
         //save updated game state
         try {
             gameService.dao.updateGame(new GameData(
@@ -385,7 +263,6 @@ public class WebSocketServer {
             session.getRemote().sendString(GSON.toJson(errorMsg));
             return;
         }
-
         //notify all players
         Set<Session> sessions = GAME_SESSIONS.get(gameID);
         String resignMsg = (playerColor != null ? playerColor : username) + " resigned. Game over!";
@@ -408,7 +285,6 @@ public class WebSocketServer {
             sessions.remove(session);
         }
         SESSION_GAME_MAP.remove(session);
-
         //get username for the notification
         String username = null;
         try {
@@ -419,14 +295,12 @@ public class WebSocketServer {
         } catch (Exception e) {
             //ignore
         }
-
         GameData gameData = null;
         try {
             gameData = gameService.dao.getGame(gameID);
         } catch (Exception e) {
             // ignore
         }
-
         String newWhite = gameData.whiteUsername();
         String newBlack = gameData.blackUsername();
         if (username != null && gameData != null) {
@@ -436,7 +310,6 @@ public class WebSocketServer {
                 newBlack = null;
             }
         }
-
         //save the updated GameData
         try {
             gameService.dao.updateGame(new GameData(
@@ -449,15 +322,12 @@ public class WebSocketServer {
         } catch (Exception e) {
             //ignore
         }
-
         //notification message
         String leaveMsg = (username != null ? username : "A player") + " left the game!";
-
         ServerMessage notification = new ServerMessage(
                 ServerMessage.ServerMessageType.NOTIFICATION,
                 leaveMsg
         );
-
         //notify all other sessions (not the leaver)
         if (sessions != null) {
             for (Session s : sessions) {
@@ -481,5 +351,99 @@ public class WebSocketServer {
         char file = (char) ('a' + pos.getColumn() - 1);
         char rank = (char) ('0' + pos.getRow());
         return "" + file + rank;
+    }
+
+    private GameData fetchGameData(Session session, int gameID) throws IOException {
+        try {
+            return gameService.dao.getGame(gameID);
+        } catch (Exception e) {
+            sendError(session, "Data access error while fetching game.");
+            return null;
+        }
+    }
+
+    private String fetchUsername(String authToken) {
+        try {
+            AuthData auth = gameService.dao.getAuth(authToken);
+            return (auth != null) ? auth.username() : null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private ChessGame.TeamColor getPlayerColor(String username, GameData gameData) {
+        if (username == null) return null;
+        if (username.equals(gameData.whiteUsername())) return ChessGame.TeamColor.WHITE;
+        if (username.equals(gameData.blackUsername())) return ChessGame.TeamColor.BLACK;
+        return null;
+    }
+
+    private boolean isValidMoveAttempt(ChessGame chessGame, ChessMove move, ChessGame.TeamColor playerColor) {
+        if (playerColor == null || chessGame.getTeamTurn() != playerColor) return false;
+        ChessPiece piece = chessGame.getBoard().getPiece(move.getStartPosition());
+        return piece != null && piece.getTeamColor() == playerColor;
+    }
+
+    private boolean applyMove(Session session, ChessGame chessGame, ChessMove move) throws IOException {
+        try {
+            chessGame.makeMove(move);
+            return true;
+        } catch (Exception e) {
+            sendError(session, "Invalid move.");
+            return false;
+        }
+    }
+
+    private boolean updateGameState(Session session, GameService gameService, GameData gameData, ChessGame chessGame) throws IOException {
+        try {
+            gameService.dao.updateGame(new GameData(
+                    gameData.gameID(),
+                    gameData.whiteUsername(),
+                    gameData.blackUsername(),
+                    gameData.gameName(),
+                    chessGame
+            ));
+            return true;
+        } catch (Exception e) {
+            sendError(session, "Failed to update game after move.");
+            return false;
+        }
+    }
+
+    private void broadcastBoard(int gameID, ChessBoard board) throws IOException {
+        Set<Session> sessions = GAME_SESSIONS.get(gameID);
+        ServerMessage loadGameMsg = new ServerMessage(
+                ServerMessage.ServerMessageType.LOAD_GAME,
+                board,
+                null
+        );
+        for (Session s : sessions) {
+            if (s.isOpen()) {
+                s.getRemote().sendString(GSON.toJson(loadGameMsg));
+            }
+        }
+    }
+
+    private void notifyMove(int gameID, Session moverSession, ChessMove move, String authToken) throws IOException {
+        Set<Session> sessions = GAME_SESSIONS.get(gameID);
+        String moverUsername = fetchUsername(authToken);
+
+        String moveDesc = String.format(
+                "%s moved from %s to %s",
+                (moverUsername != null ? moverUsername : "A player"),
+                toAlgebraicWebSocket(move.getStartPosition()),
+                toAlgebraicWebSocket(move.getEndPosition())
+        );
+
+        ServerMessage notifyMsg = new ServerMessage(
+                ServerMessage.ServerMessageType.NOTIFICATION,
+                moveDesc
+        );
+
+        for (Session s : sessions) {
+            if (s != moverSession && s.isOpen()) {
+                s.getRemote().sendString(GSON.toJson(notifyMsg));
+            }
+        }
     }
 }
