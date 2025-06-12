@@ -169,7 +169,9 @@ public class WebSocketServer {
 
     private void handleMakeMove(Session session, UserGameCommand command, int gameID, String authToken) throws IOException {
         GameData gameData = fetchGameData(session, gameID);
-        if (gameData == null) return;
+        if (gameData == null) {
+            return;
+        }
 
         ChessGame chessGame = gameData.game();
         ChessBoard board = chessGame.getBoard();
@@ -372,14 +374,22 @@ public class WebSocketServer {
     }
 
     private ChessGame.TeamColor getPlayerColor(String username, GameData gameData) {
-        if (username == null) return null;
-        if (username.equals(gameData.whiteUsername())) return ChessGame.TeamColor.WHITE;
-        if (username.equals(gameData.blackUsername())) return ChessGame.TeamColor.BLACK;
+        if (username == null) {
+            return null;
+        }
+        if (username.equals(gameData.whiteUsername())) {
+            return ChessGame.TeamColor.WHITE;
+        }
+        if (username.equals(gameData.blackUsername())) {
+            return ChessGame.TeamColor.BLACK;
+        }
         return null;
     }
 
     private boolean isValidMoveAttempt(ChessGame chessGame, ChessMove move, ChessGame.TeamColor playerColor) {
-        if (playerColor == null || chessGame.getTeamTurn() != playerColor) return false;
+        if (playerColor == null || chessGame.getTeamTurn() != playerColor) {
+            return false;
+        }
         ChessPiece piece = chessGame.getBoard().getPiece(move.getStartPosition());
         return piece != null && piece.getTeamColor() == playerColor;
     }
