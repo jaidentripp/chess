@@ -91,26 +91,6 @@ public class ChessGame {
             throw new InvalidMoveException("No piece at start or not your turn");
         }
         Collection<ChessMove> valid = validMoves(move.getStartPosition());
-
-        //debug
-        System.out.println("Valid moves for " + move.getStartPosition() + ":");
-        for (ChessMove m : valid) {
-            System.out.println(m);
-        }
-        System.out.println("Move attempted: " + move);
-
-        for (ChessMove m : valid) {
-            System.out.println(m);
-            System.out.println("  start class: " + m.getStartPosition().getClass());
-            System.out.println("  end class: " + m.getEndPosition().getClass());
-            System.out.println("  type class: " + (m.getPromotionPiece() == null ? "null" : m.getPromotionPiece().getClass()));
-        }
-        System.out.println("Move attempted: " + move);
-        System.out.println("  start class: " + move.getStartPosition().getClass());
-        System.out.println("  end class: " + move.getEndPosition().getClass());
-        System.out.println("  type class: " + (move.getPromotionPiece() == null ? "null" : move.getPromotionPiece().getClass()));
-
-
         if (!valid.contains(move)) {
             throw new InvalidMoveException("Invalid move");
         }

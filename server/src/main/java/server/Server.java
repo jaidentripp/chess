@@ -24,17 +24,9 @@ import request.JoinGameRequest;
 
 import dataaccess.MySQLDataAccess;
 
-import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.websocket.server.WebSocketUpgradeFilter;
-import static spark.Spark.*;
-
 public class Server {
 
     public int run(int desiredPort) {
-
-        //Spark.webSocket("/ws", websocket.WebSocketServer.class);
-
         Spark.port(desiredPort);
         Spark.staticFileLocation("web");
 
@@ -45,7 +37,7 @@ public class Server {
         UserService userService = new UserService(dao);
         GameService gameService = new GameService(dao);
 
-        // Set the shared GameService for WebSocketServer
+        //set the shared GameService for WebSocketServer
         websocket.WebSocketServer.setGameService(gameService);
 
         Spark.webSocket("/ws", websocket.WebSocketServer.class);

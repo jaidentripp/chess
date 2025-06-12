@@ -55,8 +55,6 @@ public class WebSocketServer {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {
-        System.out.println("Raw message: " + message);
-
         UserGameCommand command = GSON.fromJson(message, UserGameCommand.class);
 
         // Extract common fields
@@ -201,12 +199,7 @@ public class WebSocketServer {
                     }
                 }
 
-                System.out.println("Player: " + username + " color: " + playerColor + " teamTurn: " + chessGame.getTeamTurn());
-                System.out.println("Move from: " + move.getStartPosition() + " to: " + move.getEndPosition());
-                ChessPiece printPiece = chessGame.getBoard().getPiece(move.getStartPosition());
-                System.out.println("Piece at from: " + printPiece);
-
-// 3. Check if it's their turn and if the piece matches their color
+                // 3. Check if it's their turn and if the piece matches their color
                 boolean validMove = false;
                 if (playerColor != null && chessGame.getTeamTurn() == playerColor) {
                     ChessPosition from = move.getStartPosition();
