@@ -1,5 +1,7 @@
 package websocket.commands;
 
+import chess.ChessMove;
+
 import java.util.Objects;
 
 /**
@@ -22,6 +24,8 @@ public class UserGameCommand {
 
     //for highlight legal moves
     private String selectedSquare;
+
+    private ChessMove move;
 
     //constructor for CONNECT, LEAVE, RESIGN
     public UserGameCommand(CommandType commandType, String authToken, Integer gameID) {
@@ -77,6 +81,9 @@ public class UserGameCommand {
     public String getSelectedSquare() {
         return selectedSquare;
     }
+    public ChessMove getMove() {
+        return move;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -92,12 +99,13 @@ public class UserGameCommand {
                 Objects.equals(getGameID(), that.getGameID()) &&
                 Objects.equals(getMoveFrom(), that.getMoveFrom()) &&
                 Objects.equals(getMoveTo(), that.getMoveTo()) &&
-                Objects.equals(getSelectedSquare(), that.getSelectedSquare());
+                Objects.equals(getSelectedSquare(), that.getSelectedSquare()) &&
+                Objects.equals(getMove(), that.getMove());
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(getCommandType(), getAuthToken(), getGameID(),
-                getMoveFrom(), getMoveTo(), getSelectedSquare());
+                getMoveFrom(), getMoveTo(), getSelectedSquare(), getMove());
     }
 }

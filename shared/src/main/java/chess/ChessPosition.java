@@ -37,6 +37,26 @@ public class ChessPosition {
         return col;
     }
 
+    public static ChessPosition fromAlgebraic(String pos) {
+        if (pos == null) throw new IllegalArgumentException("Null position string");
+        pos = pos.trim();
+        // Format: e2
+        if (pos.length() == 2 && Character.isLetter(pos.charAt(0)) && Character.isDigit(pos.charAt(1))) {
+            char file = pos.charAt(0);
+            char rank = pos.charAt(1);
+            int column = file - 'a' + 1; // 'a' -> 1
+            int row = Character.getNumericValue(rank); // '1' -> 1
+            return new ChessPosition(row, column);
+        }
+        // Format: 25 (row=2, col=5)
+        if (pos.length() == 2 && Character.isDigit(pos.charAt(0)) && Character.isDigit(pos.charAt(1))) {
+            int row = Character.getNumericValue(pos.charAt(0));
+            int column = Character.getNumericValue(pos.charAt(1));
+            return new ChessPosition(row, column);
+        }
+        throw new IllegalArgumentException("Invalid position string: " + pos);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
